@@ -46,6 +46,15 @@ brace-expansion@^1.1.7:
     balanced-match "^1.0.0"
     concat-map "0.0.1"
 
+bybit@^1.0.5:
+  version "1.0.5"
+  resolved "https://registry.yarnpkg.com/bybit/-/bybit-1.0.5.tgz#781cb567e027b635c5e740d72f2c379fea1276ea"
+  integrity sha512-cBQm4hKV7ASaqZQtdUF6swfci+1AbPISU72ks1DONK1q7IghHSQFDu0n87Px2DCFq0azeitSqw94kcowPA9rdQ==
+  dependencies:
+    dotenv "^8.1.0"
+    lodash "^4.17.15"
+    node-fetch "^2.6.0"
+
 combined-stream@^1.0.6:
   version "1.0.8"
   resolved "https://registry.yarnpkg.com/combined-stream/-/combined-stream-1.0.8.tgz#c3d45a8b34fd730631a110a8a2520682b31d5a7f"
@@ -242,7 +251,7 @@ isarray@~1.0.0:
   resolved "https://registry.yarnpkg.com/isarray/-/isarray-1.0.0.tgz#bb935d48582cba168c06834957a54a3e07124f11"
   integrity sha1-u5NdSFgsuhaMBoNJV6VKPgcSTxE=
 
-lodash@^4.17.10, lodash@^4.17.4:
+lodash@^4.17.10, lodash@^4.17.15, lodash@^4.17.4:
   version "4.17.15"
   resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.15.tgz#b447f6670a0455bbfeedd11392eff330ea097548"
   integrity sha512-8xOcRHvCjnocdS5cpwXQXVzmmh5e5+saE2QGoeQmbKmRS6J3VQppPOIt0MnmE+4xlZoumy0GPG0D0MVIQbNA1A==

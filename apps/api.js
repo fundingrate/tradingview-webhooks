@@ -3,7 +3,7 @@ const Database = require('../models')
 const Actions = require('../libs/actions')
 const Web = require('../libs/web/web')
 
-const ByBit = require('../libs/bybit')
+const ByBit = require('bybit')
 const utils = require('../libs/utils')
 const Trader = require('../libs/trader')
 const highland = require('highland')
