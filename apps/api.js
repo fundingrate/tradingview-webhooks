@@ -1,7 +1,7 @@
 require('dotenv').config()
 const Database = require('../models')
 const Actions = require('../libs/actions')
-const Web = require('../libs/web/web')
+const Web = require('actions-http')
 
 const ByBit = require('bybit')
 const utils = require('../libs/utils')
@@ -39,6 +39,7 @@ async function main({ trades, events, trader }) {
         }
         default: {
           console.log('Invalid type.')
+          return r
           // return [r, close]
         }
       }
