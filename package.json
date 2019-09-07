@@ -1,0 +1,19 @@
+{
+  "name": "tradebot",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "bitmex-realtime-api": "^0.4.0",
+    "dotenv": "^8.1.0",
+    "moment": "^2.24.0",
+    "node-fetch": "^2.6.0",
+    "rethink-table": "^0.0.5",
+    "uWebSockets.js": "uNetworking/uWebSockets.js#v15.4.0"
+  },
+  "scripts": {
+    "start": "node index.js --max_old_space_size=4096",
+    "feed": "name=feed yarn start",
+    "api": "name=api yarn start"
+  }
+}
