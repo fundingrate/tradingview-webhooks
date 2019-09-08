@@ -2,7 +2,7 @@
 node_modules
 /dist
 secrets
-k8s
+env.*
 
 # local env files
 .env

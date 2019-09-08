@@ -1,0 +1,59 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: tradebot
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    certmanager.k8s.io/cluster-issuer: letsencrypt-prod
+spec:
+  tls:
+  - hosts:
+    - tradebot.chips.gg
+    secretName: tradebot-prod
+  rules:
+    - host: tradebot.chips.gg
+      http:
+        paths:
+          - backend:
+              serviceName: tradebot
+              servicePort: api
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: tradebot
+spec:
+  type: NodePort
+  ports:
+    - name: api
+      protocol: TCP
+      port: 9001
+  selector:
+    app: tradebot
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tradebot
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tradebot
+  template:
+    metadata:
+      labels:
+        app: tradebot
+    spec:
+      containers:
+        - name: tradebot
+          image: registry.chips.gg/tradebot
+          # ports:
+          #   - containerPort: 9001
+          imagePullPolicy: Always
+          envFrom:
+            - configMapRef:
+                name: tradebot-env
+      imagePullSecrets:
+        - name: regcred
