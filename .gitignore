@@ -4,6 +4,8 @@ node_modules
 secrets
 env.*
 
+deployment.*
+
 # local env files
 .env
 .env.local
