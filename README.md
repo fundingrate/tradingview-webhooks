@@ -54,9 +54,10 @@ npm run api
 
 ## Tutorial
 
-1. clone the repository
-2. create a [.env](#env) file (example above.)
-3. configure the app
-4. [install and run](#install--run)
-5. point a domain to the app.
-6. input that domain into tradingview.
+1. Clone the repository.
+2. Create a [.env](#env) file (example above.).
+3. Configure the app.
+4. [install and run](#install--run).
+5. Point a domain to the app.
+6. Input that domain into tradingview.
+7. Create events using [the format](#tradingview-event-format).
