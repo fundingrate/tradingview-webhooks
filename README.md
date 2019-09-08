@@ -9,3 +9,13 @@ A simple service converting tradingview webhooks into exchange orders.
 npm install
 npm run api 
 ```
+
+## TradingView Event Format
+
+```js
+{
+  "type": "LONG",
+  "provider": "rainmaker",
+  "timeframe": "4h"
+}
+```
