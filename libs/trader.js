@@ -10,7 +10,8 @@ module.exports = config => {
     shorts: 0, // count of shorts
     startingBalance: 10000,
     balance: 10000, // current wallet balance
-    price: 0
+    price: 0,
+    position: null
   }
 
   const positions = new Map()
@@ -53,6 +54,7 @@ module.exports = config => {
       stats.longs += 1
       stats.balance -= qty
       stats.price = price
+      stats.position = 'LONG'
 
       positions.set(id, {
         done: false,
@@ -71,6 +73,7 @@ module.exports = config => {
       stats.shorts += 1
       stats.balance -= qty
       stats.price = price
+      stats.position = 'SHORT'
 
       positions.set(id, {
         done: false,
