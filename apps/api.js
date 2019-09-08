@@ -70,13 +70,23 @@ async function main({ stats, trades, events, trader }) {
   //   .errors(console.error)
   //   .resume()
 
-  // utils.loop(() => {
-  //   const row = trader.getStats()
-  //   stats.upsert({
-  //     ...row,
-  //     id: 'daily',
-  //   })
-  // }, utils.ONE_DAY_MS)
+  utils.loop(() => {
+    const row = trader.getStats()
+    stats.upsert({
+      ...row,
+      created: Date.now(),
+      type: 'daily',
+    })
+  }, utils.ONE_DAY_MS)
+
+  utils.loop(() => {
+    const row = trader.getStats()
+    stats.upsert({
+      ...row,
+      created: Date.now(),
+      type: 'hourly',
+    })
+  }, utils.ONE_HOUR_MS)
 }
 
 module.exports = async config => {
