@@ -53,6 +53,7 @@ async function main({ trades, events, trader }) {
 
   const _eventsLive = await events.changes()
   highland(_eventsLive)
+    .map(r => r.new_val)
     .map(parseEvent)
     .map(trades.upsert)
     .map(highland)
