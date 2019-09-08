@@ -2,6 +2,12 @@
 
 A simple service converting tradingview webhooks into exchange orders.
 
+## Software Dependancies
+
+> Below are the required software dependancies.
+
+* `RethinkDB` - [RethinkDB 2.3.6](https://rethinkdb.com/docs/install/)
+
 ## .env
 
 > The .env contains all the app's configuration details.
