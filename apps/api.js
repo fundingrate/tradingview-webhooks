@@ -8,7 +8,7 @@ const utils = require('../libs/utils')
 const Trader = require('../libs/trader')
 const highland = require('highland')
 
-async function main({ trades, events, trader }) {
+async function main({ stats, trades, events, trader }) {
   function handlePreviousPosition(price) {
     const trade = trader.last()
     let close = null
@@ -71,7 +71,12 @@ async function main({ trades, events, trader }) {
   //   .resume()
 
   // utils.loop(() => {
-  // }, 1000)
+  //   const row = trader.getStats()
+  //   stats.upsert({
+  //     ...row,
+  //     id: 'daily',
+  //   })
+  // }, utils.ONE_DAY_MS)
 }
 
 module.exports = async config => {

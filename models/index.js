@@ -4,6 +4,7 @@ module.exports = config => {
   return Init.advanced(config, [
     require('./events'),
     require('./tickers'),
-    require('./trades')
+    require('./trades'),
+    require('./stats')
   ])
 }
