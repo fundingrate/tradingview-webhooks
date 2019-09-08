@@ -2,9 +2,9 @@ const highland = require('highland')
 const lodash = require('lodash')
 const assert = require('assert')
 
-module.exports = ({events, trades, bybit, trader}) => {
+module.exports = ({ events, trades, bybit, trader, stats }) => {
   return {
-    async echo(payload){
+    async echo(payload) {
       return payload
     },
     async ping() {
@@ -12,11 +12,11 @@ module.exports = ({events, trades, bybit, trader}) => {
     },
     async consumeEvent(params) {
       const ticker = await bybit.getTicker()
-      
+
       return events.upsert({
         created: Date.now(),
         ticker,
-        ...params
+        ...params,
       })
     },
     async listTrades() {
@@ -24,6 +24,9 @@ module.exports = ({events, trades, bybit, trader}) => {
     },
     async getStats() {
       return trader.getStats()
-    }
+    },
+    async listStats(params) {
+      return stats.list(params)
+    },
   }
 }
