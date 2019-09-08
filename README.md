@@ -4,6 +4,8 @@ A simple service converting tradingview webhooks into exchange orders.
 
 ## .env
 
+> The .env contains all the app's configuration details.
+
 ```env
   name=api
   port=9001
@@ -24,7 +26,9 @@ A simple service converting tradingview webhooks into exchange orders.
   bybit.secret=
 ```
 
-## run
+## Install & Run
+
+> Install the dependancies and startup the app.
 
 ```
 npm install
@@ -33,11 +37,18 @@ npm run api
 
 ## TradingView Event Format
 
+> Below is the format the bot expects.
+
+* `type` - The event position type.
+* `provider` - Defined name for the event.
+* `timeframe` - Timeframe the event is listening to.
+
+
 ```javascript
 {
-  "type": "LONG", //LONG or SHORT
-  "provider": "rainmaker", //indicator name / event name
-  "timeframe": "4h" //timeframe its listening to
+  "type": "LONG",
+  "provider": "rainmaker",
+  "timeframe": "4h"
 }
 ```
 
