@@ -14,8 +14,8 @@ npm run api
 
 ```js
 {
-  "type": "LONG",
-  "provider": "rainmaker",
-  "timeframe": "4h"
+  "type": "LONG", //LONG or SHORT
+  "provider": "rainmaker", //indicator name / event name
+  "timeframe": "4h" //timeframe its listening to
 }
 ```
