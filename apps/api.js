@@ -18,46 +18,56 @@ async function main({ trades, events, trader }) {
     return { ...trade, ...close }
   }
 
+  function parseEvent(r) {
+    let price = r.ticker.last_price
+
+    // close the previous position.
+    const close = handlePreviousPosition(r.ticker.last_price)
+    if (close.id) trades.update(close.id, close)
+
+    // NOTE: r.provider needs to be handled later.
+    switch (r.type) {
+      case 'SHORT': {
+        const long = trader.openLong(r.id, price)
+        return { ...r, ...long }
+      }
+      case 'LONG': {
+        const short = trader.openShort(r.id, price)
+        return { ...r, ...short }
+      }
+      default: {
+        console.log('Invalid type.')
+        return r
+        // return [r, close]
+      }
+    }
+  }
+
   const _events = await events.streamSorted()
   highland(_events)
-    .map(r => {
-      let price = r.ticker.last_price
-
-      // close the previous position.
-      const close = handlePreviousPosition(r.ticker.last_price)
-      if (close.id) trades.update(close.id, close)
-
-      // NOTE: r.provider needs to be handled later.
-      switch (r.type) {
-        case 'SHORT': {
-          const long = trader.openLong(r.id, price)
-          return { ...r, ...long }
-        }
-        case 'LONG': {
-          const short = trader.openShort(r.id, price)
-          return { ...r, ...short }
-        }
-        default: {
-          console.log('Invalid type.')
-          return r
-          // return [r, close]
-        }
-      }
-    })
+    .map(parseEvent)
     .map(trades.upsert)
     .map(highland)
     .errors(console.error)
     .resume()
 
-  const _trades = trades.changes()
-  highland(_trades)
-    .map(r => r.new_val)
-    .filter(r => r.done)
-    .map(r => {
-      // do somthing ...
-    })
+  const _eventsLive = await events.changes()
+  highland(_eventsLive)
+    .map(parseEvent)
+    .map(trades.upsert)
+    .map(highland)
     .errors(console.error)
     .resume()
+
+  // const _trades = trades.changes()
+  // highland(_trades)
+  //   .map(r => r.new_val)
+  //   .filter(r => r.done)
+  //   .map(r => {
+  //     // do somthing ...
+  //   })
+  //   .errors(console.error)
+  //   .resume()
 
   // utils.loop(() => {
   // }, 1000)
