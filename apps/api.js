@@ -14,6 +14,7 @@ async function main({ stats, trades, events, trader }) {
     let close = null
     if (trade) {
       close = trader.close(trade.id, price, trade.qty)
+      trader.delete(trade.id) // delete closed positions from memory.
     }
     return { ...trade, ...close }
   }

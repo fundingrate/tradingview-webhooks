@@ -1,5 +1,6 @@
 //NOTE: temp.
 const assert = require('assert')
+const lodash = require('lodash')
 
 module.exports = config => {
   // contracts will be negative if in a short.
@@ -11,18 +12,31 @@ module.exports = config => {
     startingBalance: 10000,
     balance: 10000, // current wallet balance
     price: 0,
-    position: null
+    position: null,
   }
 
+  // const position = {
+  //   id: null,
+  // }
+
+  // NOTE: assuption has been made that this was a queue... will have to be changed.
   const positions = new Map()
 
   positions.last = () => {
     const keys = [...positions.keys()]
-    const k = keys[positions.size - 1]
+
+    // hack to get the last item in the array
+    const orderedKeys = lodash.sortBy(keys, k => {
+      const p = positions.get(k)
+      return p.created
+    })
+
+    const lastKey = orderedKeys[positions.size - 1]
+    const lastPosition = positions.get(lastKey)
 
     return {
-      id: k,
-      ...positions.get(k),
+      id: lastKey,
+      ...lastPosition,
     }
   }
 
@@ -44,7 +58,7 @@ module.exports = config => {
 
   return {
     getStats() {
-      return { ...stats }
+      return { ...stats, count: positions.size }
     },
     keys: positions.keys,
     last: positions.last,
@@ -104,14 +118,15 @@ module.exports = config => {
           ? trade.price - trade.closingPrice
           : trade.closingPrice - trade.price
 
-      if(trade.profit > 0) {
+      if (trade.profit > 0) {
         stats.balance += trade.profit
       }
 
       trade.change = change(trade.price, trade.closingPrice)
-      
+
       positions.set(id, trade)
       return positions.get(id)
     },
+    delete: id => positions.delete(id),
   }
 }
