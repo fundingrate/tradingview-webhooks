@@ -28,6 +28,7 @@ async function main({ stats, trades, events, trader }) {
     if (close.id) trades.update(close.id, close)
 
     // NOTE: r.provider needs to be handled later.
+    // A dashboard should be developed to manage these interactions.
     switch (r.type) {
       case 'SHORT': {
         const long = trader.openLong(r.id, price)
@@ -39,6 +40,10 @@ async function main({ stats, trades, events, trader }) {
       }
       case 'MARKET_TREND': {
         const stats = trader.updateMarketCondition(r.marketCondition)
+        // return { ...r, ...trend }
+      }
+      case 'MOMENTUM_WAVE': {
+        const stats = trader.updateMarketMomentum(r.momentum)
         // return { ...r, ...trend }
       }
       default: {
