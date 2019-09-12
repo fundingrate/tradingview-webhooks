@@ -28,5 +28,8 @@ module.exports = ({ events, trades, bybit, trader, stats }) => {
     async listStats(params) {
       return stats.list(params)
     },
+    async lastPosition() {
+      return trader.last()
+    }
   }
 }

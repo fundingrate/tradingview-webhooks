@@ -5,10 +5,11 @@ const Web = require('actions-http')
 
 const ByBit = require('bybit')
 const utils = require('../libs/utils')
-const Trader = require('../libs/trader')
+const Trader = require('../libs/trader/trader')
 const highland = require('highland')
 
 async function main({ stats, trades, events, trader }) {
+
   function handlePreviousPosition(price) {
     const trade = trader.last()
     let close = null
@@ -36,10 +37,14 @@ async function main({ stats, trades, events, trader }) {
         const short = trader.openShort(r.id, price)
         return { ...r, ...short }
       }
+      case 'MARKET_TREND': {
+        // const trend = r.marketCondition
+        const trend = trader.updateMarketCondition(r)
+        return { ...r, ...trend }
+      }
       default: {
         console.log('Invalid type.')
         return r
-        // return [r, close]
       }
     }
   }
