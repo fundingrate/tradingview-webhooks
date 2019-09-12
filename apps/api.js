@@ -38,9 +38,8 @@ async function main({ stats, trades, events, trader }) {
         return { ...r, ...short }
       }
       case 'MARKET_TREND': {
-        // const trend = r.marketCondition
-        const trend = trader.updateMarketCondition(r)
-        return { ...r, ...trend }
+        const stats = trader.updateMarketCondition(r.marketCondition)
+        // return { ...r, ...trend }
       }
       default: {
         console.log('Invalid type.')
