@@ -107,7 +107,7 @@ module.exports = config => {
       stats.profit = stats.gained + stats.lost
       trade.change = change(trade.price, trade.closingPrice)
 
-      if (trade.type === 'short') {
+      if (trade.type === 'SHORT') {
         stats.shortProfit += trade.profit
       } else {
         stats.longProfit += trade.profit
