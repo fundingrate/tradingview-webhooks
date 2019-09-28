@@ -23,7 +23,7 @@ exports.Stats = p => {
     position: null,
     // marketCondition: null,
     // momentum: null,
-    count: 0,
+    openPositions: 0,
     profitableTrades: 0,
     ...p,
   }
