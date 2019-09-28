@@ -73,7 +73,7 @@ module.exports = config => {
       return pos
     },
     close(id, price) {
-      // merge trades and update closing values 
+      // merge trades and update closing values
 
       price = parseFloat(price)
 
@@ -94,11 +94,16 @@ module.exports = config => {
           : trade.closingPrice - trade.price
 
       // update balance to reflect profit/loss
-      if (trade.profit) {
-        stats.balance += trade.profit
-        if(trade.profit > 0) stats.profitableTrades += 1
+      stats.balance += trade.profit
+
+      if (trade.profit > 0) {
+        stats.profitableTrades += 1
+        stats.gained += trade.profit
+      } else {
+        stats.lost += trade.profit
       }
 
+      stats.profit = stats.gained + stats.lost
       trade.change = change(trade.price, trade.closingPrice)
 
       console.log(trade.id, 'Trade Closed.', trade)
