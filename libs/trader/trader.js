@@ -1,69 +1,14 @@
 //NOTE: temp.
 const assert = require('assert')
 const lodash = require('lodash')
+const { Position, Stats } = require('./defaults')
 
 module.exports = config => {
-  // contracts will be negative if in a short.
-  // contracts should be 0 when no position is open.
 
-  // const report = {
-  //   type: 'MARKET_TREND',
-  //   marketCondition: null,
-  //   description: null,
-  //   condition: null,
-  //   provider: null,
-  //   timeframe: null,
-  // }
-
-  const stats = {
-    longs: 0, // count of longs
-    shorts: 0, // count of shorts
-    startingBalance: 10000,
-    balance: 10000, // current wallet balance
-    price: null,
-    position: null,
-    marketCondition: null,
-    momentum: null
-  }
-
-  // const position = {
-  //   id: null,
-  //   price: 0,
-  //   qty: 0
-  // }
+  const stats = Stats()
 
   // NOTE: assuption has been made that this was a queue... will have to be changed.
-  const positions = new Map()
-
-  positions.last = () => {
-    const keys = [...positions.keys()]
-
-    // hack to get the last item in the array
-    const orderedKeys = lodash.sortBy(keys, k => {
-      const p = positions.get(k)
-      return p.created
-    })
-
-    const lastKey = orderedKeys.pop()
-    const lastPosition = positions.get(lastKey)
-
-    return {
-      id: lastKey,
-      ...lastPosition,
-    }
-  }
-
-  function getDifference(price) {
-    const last = positions.last()
-    assert(last, 'requires last position')
-    const balance = last.price - price
-
-    return {
-      last,
-      price,
-      balance,
-    }
-  }
+  const positions = []
 
   function change(a = 0, b = 0) {
     return 100 * Math.abs((a - b) / ((a + b) / 2))
@@ -71,18 +16,14 @@ module.exports = config => {
 
   return {
     get: id => positions.get(id),
-    keys: positions.keys,
-    last: positions.last,
-    updateMarketCondition(marketCondition) {
-      stats.marketCondition = marketCondition
-      return { ...stats }
+    last: () => {
+      return [...positions].pop()
     },
-    updateMarketMomentum(momentum) {
-      stats.momentum = momentum
-      return { ...stats }
+    list: () => {
+      return [...positions]
     },
     getStats() {
-      return { ...stats, count: positions.size }
+      return { ...stats, count: positions.length }
     },
     openLong(id, price, qty = 10) {
       price = parseFloat(price)
@@ -92,16 +33,17 @@ module.exports = config => {
       stats.price = price
       stats.position = 'LONG'
 
-      positions.set(id, {
-        done: false,
+      const pos = Position({
+        id,
         type: 'LONG',
-        created: Date.now(),
-        updated: null,
         qty,
         price,
       })
 
-      return positions.get(id)
+      positions.push(pos)
+      stats.position = pos
+
+      return pos
     },
     openShort(id, price, qty = 10) {
       price = parseFloat(price)
@@ -111,42 +53,45 @@ module.exports = config => {
       stats.price = price
       stats.position = 'SHORT'
 
-      positions.set(id, {
-        done: false,
+      const pos = Position({
+        id,
         type: 'SHORT',
-        created: Date.now(),
-        updated: null,
         qty,
         price,
       })
 
-      return positions.get(id)
+      positions.push(pos)
+      stats.position = pos
+
+      return pos
     },
     close(id, price, qty = 10) {
       price = parseFloat(price)
 
-      const pos = positions.get(id)
+      const pos = positions.pop()
 
-      const trade = {
+      // closed trade, do not add to active positions array.
+      const trade = Position({
         ...pos,
         updated: Date.now(),
         qty,
         closingPrice: price,
         done: true,
-      }
+      })
 
       trade.profit =
         trade.type === 'SHORT'
           ? trade.price - trade.closingPrice
           : trade.closingPrice - trade.price
 
+      // update balance to reflect profit/loss
       if (trade.profit) stats.balance += trade.profit
 
       trade.change = change(trade.price, trade.closingPrice)
 
-      positions.set(id, trade)
-      return positions.get(id)
+      console.log(trade.id, 'Trade Closed.', trade)
+
+      return trade
     },
-    delete: id => positions.delete(id),
   }
 }

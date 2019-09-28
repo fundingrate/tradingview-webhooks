@@ -17,7 +17,8 @@
   },
   "scripts": {
     "start": "node index.js --max_old_space_size=4096",
-    "feed": "name=feed yarn start",
-    "api": "name=api yarn start"
+    "trader": "name=trader yarn start",
+    "api": "name=api yarn start",
+    "stats": "name=stats yarn start"
   }
 }

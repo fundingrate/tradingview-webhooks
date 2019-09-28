@@ -28,3 +28,4 @@ yarn-error.log*
 gcloud.json 
 
 db_dump_*
+.k8s
