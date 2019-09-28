@@ -85,6 +85,7 @@ module.exports = config => {
         done: true,
       })
 
+      // profit per trade
       trade.profit =
         trade.type === 'SHORT'
           ? trade.price - trade.closingPrice

@@ -25,6 +25,9 @@ module.exports = ({ events, trades, bybit, stats, trader }) => {
     async listTrades() {
       return trades.list()
     },
+    async listClosedTrades() {
+      return trades.listClosed()
+    },
     async listStats(params) {
       return stats.list(params)
     },
