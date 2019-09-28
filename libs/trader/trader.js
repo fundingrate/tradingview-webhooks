@@ -4,8 +4,11 @@ const lodash = require('lodash')
 const { Position, Stats } = require('./defaults')
 
 module.exports = config => {
-
   const stats = Stats()
+
+  const getAllowance = () => {
+    return stats.balance * 0.1
+  }
 
   // NOTE: assuption has been made that this was a queue... will have to be changed.
   const positions = []
@@ -22,16 +25,19 @@ module.exports = config => {
     list: () => {
       return [...positions]
     },
+    setStat(k, v) {
+      stats[k] = v
+      return stats
+    },
+    getStat(k) {
+      assert(stats[k], 'stat does not exist.')
+      return stats[k]
+    },
     getStats() {
       return { ...stats, count: positions.length }
     },
-    openLong(id, price, qty = 10) {
+    openLong(id, price, qty = getAllowance()) {
       price = parseFloat(price)
-
-      stats.longs += 1
-      // stats.balance -= qty
-      stats.price = price
-      stats.position = 'LONG'
 
       const pos = Position({
         id,
@@ -42,16 +48,13 @@ module.exports = config => {
 
       positions.push(pos)
       stats.position = pos
+      stats.longs += 1
+      stats.price = price
 
       return pos
     },
-    openShort(id, price, qty = 10) {
+    openShort(id, price, qty = getAllowance()) {
       price = parseFloat(price)
-
-      stats.shorts += 1
-      // stats.balance -= qty
-      stats.price = price
-      stats.position = 'SHORT'
 
       const pos = Position({
         id,
@@ -62,10 +65,14 @@ module.exports = config => {
 
       positions.push(pos)
       stats.position = pos
+      stats.shorts += 1
+      stats.price = price
 
       return pos
     },
-    close(id, price, qty = 10) {
+    close(id, price) {
+      // merge trades and update closing values 
+
       price = parseFloat(price)
 
       const pos = positions.pop()
@@ -74,7 +81,6 @@ module.exports = config => {
       const trade = Position({
         ...pos,
         updated: Date.now(),
-        qty,
         closingPrice: price,
         done: true,
       })

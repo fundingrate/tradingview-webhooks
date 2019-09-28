@@ -31,11 +31,11 @@ async function main({ bybit, stats, trades, events, trader, tickers }) {
     // A dashboard should be developed to manage these interactions.
     //TODO: just filter the stream of events...
     switch (r.type) {
-      case 'SHORT': {
+      case 'LONG': {
         const long = trader.openLong(r.id, price)
         return { ...r, ...long }
       }
-      case 'LONG': {
+      case 'SHORT': {
         const short = trader.openShort(r.id, price)
         return { ...r, ...short }
       }
@@ -56,6 +56,7 @@ async function main({ bybit, stats, trades, events, trader, tickers }) {
   //process the stream of trades
   const _events = await events.streamSorted()
   highland(_events)
+    .filter(r => r.timeframe === '5m')
     .map(parseEvent)
     .map(trades.upsert)
     .map(highland)
@@ -66,6 +67,7 @@ async function main({ bybit, stats, trades, events, trader, tickers }) {
   const _eventsLive = await events.changes()
   highland(_eventsLive)
     .map(r => r.new_val)
+    .filter(r => r.timeframe === '5m')
     .map(parseEvent)
     .map(trades.upsert)
     .map(highland)
