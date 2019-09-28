@@ -34,7 +34,7 @@ module.exports = config => {
       return stats[k]
     },
     getStats() {
-      return { ...stats, count: positions.length }
+      return { ...stats, openPositions: positions.length }
     },
     openLong(id, price, qty = getAllowance()) {
       price = parseFloat(price)
@@ -49,6 +49,7 @@ module.exports = config => {
       positions.push(pos)
       stats.position = pos
       stats.longs += 1
+      stats.totalTrades += 1
       stats.price = price
 
       return pos
@@ -66,6 +67,7 @@ module.exports = config => {
       positions.push(pos)
       stats.position = pos
       stats.shorts += 1
+      stats.totalTrades += 1
       stats.price = price
 
       return pos
@@ -92,7 +94,10 @@ module.exports = config => {
           : trade.closingPrice - trade.price
 
       // update balance to reflect profit/loss
-      if (trade.profit) stats.balance += trade.profit
+      if (trade.profit) {
+        stats.balance += trade.profit
+        if(trade.profit > 0) stats.profitableTrades += 1
+      }
 
       trade.change = change(trade.price, trade.closingPrice)
 

@@ -16,6 +16,7 @@ exports.Stats = p => {
   return {
     longs: 0, // count of longs
     shorts: 0, // count of shorts
+    totalTrades: 0,
     startingBalance,
     balance: startingBalance,
     price: null,
@@ -23,6 +24,7 @@ exports.Stats = p => {
     // marketCondition: null,
     // momentum: null,
     count: 0,
+    profitableTrades: 0,
     ...p,
   }
 }
