@@ -1,6 +1,6 @@
 # Tradingview-listener
 
-A simple service converting tradingview webhooks into exchange orders.
+A simple service converting tradingview webhooks into exchange orders. Once started, the end user is able to submit commands via http.
 
 ## Software Dependancies
 
