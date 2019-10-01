@@ -119,58 +119,60 @@ export default async baseURL => {
 
 ### Actions
 
-#### echo
+#### echo(params)
 
 > returns back whatever is posted to it.
 
-#### ping
+- `params` - optional params.
+
+#### ping()
 
 > returns 200 ok message.
 
-#### me
+#### me({token})
 
 > returns the user valided by the token.
 
 - `token` - a user token.
 
-#### getTicker
+#### getTicker()
 
 > returns the current bybit ticker information.
 
-#### registerUsername
+#### registerUsername({username})
 
 > returns user token and creates userid.
 
 - `username` - desired username.
 
-#### listUsers
+#### listUsers()
 
 > list all registered users.
 
-#### listTraders
+#### listTraders()
 
 > list all users who are active traders.
 
-#### consumeEvent
+#### consumeEvent({token, ...params})
 
 > returns the created event.
 
 - `token` - a user token.
 - `params` - optional event params.
 
-#### listMyTrades
+#### listMyTrades({token})
 
 > returns list of created trades.
 
 - `token` - a user token.
 
-#### getMyStats
+#### getMyStats({token})
 
 > list my current trade stats.
 
 - `token` - a user token.
 
-#### listMyTokens
+#### listMyTokens({token})
 
 > list all my created tokens.
 
