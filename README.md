@@ -52,13 +52,17 @@ npm run api
 
 ```javascript
 {
+  "token": "4432424-d9b3-433d-9388-19650eb7bf2a",
   "type": "LONG",
-  "provider": "rainmaker",
-  "timeframe": "4h"
+  "condition": "Whale",
+  "description": "Price can still go up",
+  "provider": "Market Liberator A",
+  "timeframe": "5m"
 }
 ```
 
-## Tutorial
+## Setup Tutorial
+> Below is a short tutorial on how to setup the app.
 
 1. Clone the repository.
 2. Create a [.env](#env) file (example above.).
@@ -67,3 +71,46 @@ npm run api
 5. Point a domain to the app.
 6. Input that domain into tradingview.
 7. Create events using [the format](#tradingview-event-format).
+
+## HTTP Interface
+> Below is an example of how to use the http interface exposed by the app.
+
+```js
+import axios from 'axios'
+import assert from 'assert'
+
+export default async baseURL => {
+  const api = axios.create({
+    baseURL,
+    transformResponse: [function (data) {
+      return JSON.parse(data);
+    }]
+  })
+  const { data } = await api.get('/')
+  console.log(data)
+  return data.reduce(
+    (memo, action) => {
+      return {
+        ...memo,
+        [action]: async (params) => {
+          const { data } = await api.post(`/${action}`, params)
+          console.log(action, params, data)
+          return data
+        },
+      }
+    },
+    {
+      _api: api,
+      _post: async (endpoint, params) => {
+        const { data } = await api.post(endpoint, params)
+        return data
+      },
+      _get: async (endpoint, params) => {
+        const { data } = await api.get(endpoint, params)
+        return data
+      },
+    }
+  )
+}
+
+```
