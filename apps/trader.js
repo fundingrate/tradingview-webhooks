@@ -56,11 +56,11 @@ async function main({ bybit, stats, trades, events, trader, tickers }) {
   //process the stream of trades
   const _events = await events.streamSorted()
   highland(_events)
-    // .filter(r => r.timeframe === '5m')
-    // .filter(r => r.provider === 'Market Liberator A')
+    .filter(r => r.timeframe === '5m')
+    .filter(r => r.provider === 'Market Liberator A')
     .map(parseEvent)
-    .map(trades.upsert)
-    .map(highland)
+    // .map(trades.upsert)
+    // .map(highland)
     .errors(console.error)
     .resume()
 
@@ -68,40 +68,42 @@ async function main({ bybit, stats, trades, events, trader, tickers }) {
   const _eventsLive = await events.changes()
   highland(_eventsLive)
     .map(r => r.new_val)
-    // .filter(r => r.timeframe === '5m')
-    // .filter(r => r.provider === 'Market Liberator A')
+    .filter(r => r.timeframe === '5m')
+    .filter(r => r.provider === 'Market Liberator A')
     .map(parseEvent)
-    .map(trades.upsert)
-    .map(highland)
+    // .map(trades.upsert)
+    // .map(highland)
     .errors(console.error)
     .resume()
 
-
   // processors
 
-  // utils.loop(() => {
-  //   const row = trader.getStats()
-  //   stats.upsert({
-  //     ...row,
-  //     created: Date.now(),
-  //     type: 'daily',
-  //   })
-  // }, utils.ONE_DAY_MS)
+  utils.loop(() => {
+    const row = trader.getStats()
+    stats.upsert({
+      ...row,
+      created: Date.now(),
+      type: 'daily',
+    })
+  }, utils.ONE_DAY_MS)
 
-  // utils.loop(() => {
-  //   const row = trader.getStats()
-  //   stats.upsert({
-  //     ...row,
-  //     created: Date.now(),
-  //     type: 'hourly',
-  //   })
-  // }, utils.ONE_HOUR_MS)
+  utils.loop(() => {
+    const row = trader.getStats()
+    stats.upsert({
+      ...row,
+      created: Date.now(),
+      type: 'hourly',
+    })
+  }, utils.ONE_HOUR_MS)
 
-  // let times = 0
-  // utils.loop(() => {
-  //   const row = trader.getStats()
-  //   console.log(++times, row)
-  // }, 1000)
+  utils.loop(() => {
+    const row = trader.getStats()
+    stats.upsert({
+      ...row,
+      created: Date.now(),
+      type: 'hourly',
+    })
+  }, 5 * utils.ONE_MINUTE_MS)
 }
 
 module.exports = async config => {

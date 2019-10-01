@@ -5,6 +5,8 @@ module.exports = config => {
     require('./events'),
     require('./tickers'),
     require('./trades'),
-    require('./stats')
+    require('./stats'),
+    require('./tokens'),
+    require('./users')
   ])
 }
