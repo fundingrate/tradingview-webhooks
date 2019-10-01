@@ -6,7 +6,7 @@ A simple service converting tradingview webhooks into exchange orders.
 
 > Below are the required software dependancies.
 
-* `RethinkDB` - [RethinkDB 2.3.6](https://rethinkdb.com/docs/install/)
+- `RethinkDB` - [RethinkDB 2.3.6](https://rethinkdb.com/docs/install/)
 
 ## .env
 
@@ -45,10 +45,9 @@ npm run api
 
 > Below is the format the bot expects.
 
-* `type` - The event position type.
-* `provider` - Defined name for the event.
-* `timeframe` - Timeframe the event is listening to.
-
+- `type` - The event position type.
+- `provider` - Defined name for the event.
+- `timeframe` - Timeframe the event is listening to.
 
 ```javascript
 {
@@ -62,6 +61,7 @@ npm run api
 ```
 
 ## Setup Tutorial
+
 > Below is a short tutorial on how to setup the app.
 
 1. Clone the repository.
@@ -73,6 +73,7 @@ npm run api
 7. Create events using [the format](#tradingview-event-format).
 
 ## HTTP Interface
+
 > Below is an example of how to use the http interface exposed by the app.
 
 ```js
@@ -82,9 +83,11 @@ import assert from 'assert'
 export default async baseURL => {
   const api = axios.create({
     baseURL,
-    transformResponse: [function (data) {
-      return JSON.parse(data);
-    }]
+    transformResponse: [
+      function(data) {
+        return JSON.parse(data)
+      },
+    ],
   })
   const { data } = await api.get('/')
   console.log(data)
@@ -92,7 +95,7 @@ export default async baseURL => {
     (memo, action) => {
       return {
         ...memo,
-        [action]: async (params) => {
+        [action]: async params => {
           const { data } = await api.post(`/${action}`, params)
           console.log(action, params, data)
           return data
@@ -112,5 +115,63 @@ export default async baseURL => {
     }
   )
 }
-
 ```
+
+### Actions
+
+#### echo
+
+> returns back whatever is posted to it.
+
+#### ping
+
+> returns 200 ok message.
+
+#### me
+
+> returns the user valided by the token.
+
+- `token` - a user token.
+
+#### getTicker
+
+> returns the current bybit ticker information.
+
+#### registerUsername
+
+> returns user token and creates userid.
+
+- `username` - desired username.
+
+#### listUsers
+
+> list all registered users.
+
+#### listTraders
+
+> list all users who are active traders.
+
+#### consumeEvent
+
+> returns the created event.
+
+- `token` - a user token.
+- `params` - optional event params.
+
+#### listMyTrades
+
+> returns list of created trades.
+
+- `token` - a user token.
+
+#### getMyStats
+
+> list my current trade stats.
+
+- `token` - a user token.
+
+#### listMyTokens
+
+> list all my created tokens.
+
+- `token` - a user token.

@@ -2,7 +2,7 @@ const highland = require('highland')
 const lodash = require('lodash')
 const assert = require('assert')
 
-module.exports = ({ events, trades, bybit, stats, trader, users, tokens }) => {
+module.exports = ({ events, trades, bybit, stats, traders, users, tokens }) => {
   return {
     async echo(payload) {
       return payload
@@ -10,20 +10,26 @@ module.exports = ({ events, trades, bybit, stats, trader, users, tokens }) => {
     async ping() {
       return 'ok'
     },
+    async me({ token }) {
+      assert(token, 'token required')
+      token = await tokens.get(token)
+      const user = await users.get(token.userid)
+      return user
+    },
     async getTicker() {
       return bybit.getTicker()
-    },
-    async listUsers() {
-      return users.list()
-    },
-    async generateToken() {
-      return tokens.generate('tradebot', 'user')
     },
     async registerUsername({ username }) {
       const user = await users.create(username)
       let token = await tokens.generate('tradebot', 'user')
       token = await tokens.validate(token.id, user.id)
       return { user, token }
+    },
+    async listUsers() {
+      return users.list()
+    },
+    async listTraders() {
+      return traders.keys()
     },
     async consumeEvent({ token, ...params }) {
       assert(token, 'token required')
@@ -41,27 +47,23 @@ module.exports = ({ events, trades, bybit, stats, trader, users, tokens }) => {
         ...params,
       })
     },
-    async listTrades() {
-      return trades.list()
+    async listMyTrades({ token }) {
+      assert(token, 'token required')
+      const { valid, userid, type } = await tokens.get(token)
+      assert(valid, 'token is no longer valid')
+      return trades.getBy('userid', userid)
     },
-    async listClosedTrades() {
-      return trades.listClosed()
-    },
-    async listStats(params) {
-      return stats.list(params)
-    },
-    async getStats() {
+    async getMyStats({ token }) {
+      assert(token, 'token required')
+      const { valid, userid, type } = await tokens.get(token)
+      assert(valid, 'token is no longer valid')
+      const trader = traders.get(userid)
+      assert(trader, 'trader not found, you have no events recorded.')
       return trader.getStats()
     },
     async listMyTokens({ token }) {
       const { userid } = await tokens.get(token)
       return tokens.getBy('userid', userid)
-    },
-    async me({ token }) {
-      assert(token, 'token required')
-      token = await tokens.get(token)
-      const user = await users.get(token.userid)
-      return user
-    },
+    }
   }
 }

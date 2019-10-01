@@ -3,8 +3,10 @@ const assert = require('assert')
 const lodash = require('lodash')
 const { Position, Stats } = require('./defaults')
 
-module.exports = config => {
-  const stats = Stats()
+module.exports = (config, userid) => {
+  const stats = Stats({
+    userid
+  })
 
   const getAllowance = () => {
     return stats.balance * 0.1
@@ -40,6 +42,7 @@ module.exports = config => {
       price = parseFloat(price)
 
       const pos = Position({
+        userid,
         id,
         type: 'LONG',
         qty,
@@ -58,6 +61,7 @@ module.exports = config => {
       price = parseFloat(price)
 
       const pos = Position({
+        userid,
         id,
         type: 'SHORT',
         qty,

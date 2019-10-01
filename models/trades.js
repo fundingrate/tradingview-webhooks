@@ -3,7 +3,7 @@ const { Table } = require('rethink-table')
 module.exports = async con => {
   const schema = {
     table: 'trades',
-    indices: ['created', 'type', 'provider'],
+    indices: ['created', 'type', 'provider', 'userid'],
   }
 
   const table = await Table(con, schema)

@@ -8,20 +8,50 @@ const utils = require('../libs/utils')
 const Trader = require('../libs/trader/trader')
 const highland = require('highland')
 
-async function main({ bybit, stats, trades, events, trader, tickers }) {
-  function handlePreviousPosition(price) {
-    const trade = trader.last()
-    let close = null
-    if (trade) {
-      close = trader.close(trade.id, price, trade.qty)
-    }
-    return { ...trade, ...close }
+const assert = require('assert')
+
+async function main(config, { bybit, stats, trades, events, tickers }) {
+
+  const traders = {}
+  
+  function set(id, trader) {
+    assert(id, 'id required')
+    assert(trader, 'trader required')
+    traders[id] = trader
+    return traders[id]
   }
 
+  function get(id) {
+    assert(id, 'id required')
+    assert(traders[id], 'trader does not exist')
+    return traders[id]
+  }
+
+  function has(id) {
+    assert(id, 'id required')
+    return traders[id] ? true : false
+  }
+  
   function parseEvent(r) {
+    console.log(r.id)
+    let trader = null
+
+    if(!has(r.userid)) {
+      trader = Trader(config.trader, r.userid)
+      set(r.userid, trader)
+    } else {
+      trader = get(r.userid)
+    }
     let price = r.ticker.last_price
 
-    console.log(r.id)
+    function handlePreviousPosition(price) {
+      const trade = trader.last()
+      let close = null
+      if (trade) {
+        close = trader.close(trade.id, price, trade.qty)
+      }
+      return { ...trade, ...close }
+    }  
 
     // close the previous position.
     const close = handlePreviousPosition(r.ticker.last_price)
@@ -53,64 +83,73 @@ async function main({ bybit, stats, trades, events, trader, tickers }) {
       }
     }
   }
-  //process the stream of trades
+
   const _events = await events.streamSorted()
+  const _eventsLive = await events.changes()
+
+  //process the stream of trades
   highland(_events)
     .filter(r => r.timeframe === '5m')
     .filter(r => r.provider === 'Market Liberator A')
     .map(parseEvent)
-    // .map(trades.upsert)
-    // .map(highland)
+    .map(trades.upsert)
+    .map(highland)
     .errors(console.error)
     .resume()
 
   //process the realtime trades
-  const _eventsLive = await events.changes()
   highland(_eventsLive)
     .map(r => r.new_val)
     .filter(r => r.timeframe === '5m')
     .filter(r => r.provider === 'Market Liberator A')
     .map(parseEvent)
-    // .map(trades.upsert)
-    // .map(highland)
+    .map(trades.upsert)
+    .map(highland)
     .errors(console.error)
     .resume()
 
   // processors
 
-  utils.loop(() => {
-    const row = trader.getStats()
-    stats.upsert({
-      ...row,
-      created: Date.now(),
-      type: 'daily',
-    })
-  }, utils.ONE_DAY_MS)
+  // utils.loop(() => {
+  //   const row = trader.getStats()
+  //   stats.upsert({
+  //     ...row,
+  //     created: Date.now(),
+  //     type: 'daily',
+  //   })
+  // }, utils.ONE_DAY_MS)
 
-  utils.loop(() => {
-    const row = trader.getStats()
-    stats.upsert({
-      ...row,
-      created: Date.now(),
-      type: 'hourly',
-    })
-  }, utils.ONE_HOUR_MS)
+  // utils.loop(() => {
+  //   const row = trader.getStats()
+  //   stats.upsert({
+  //     ...row,
+  //     created: Date.now(),
+  //     type: 'hourly',
+  //   })
+  // }, utils.ONE_HOUR_MS)
 
-  utils.loop(() => {
-    const row = trader.getStats()
-    stats.upsert({
-      ...row,
-      created: Date.now(),
-      type: 'hourly',
-    })
-  }, 5 * utils.ONE_MINUTE_MS)
+  // utils.loop(() => {
+  //   const row = trader.getStats()
+  //   stats.upsert({
+  //     ...row,
+  //     created: Date.now(),
+  //     type: 'hourly',
+  //   })
+  // }, 5 * utils.ONE_MINUTE_MS)
+
+  return {
+    has,
+    set,
+    get,
+    list: () => Object.values(traders),
+    keys: () => Object.keys(traders)
+  }
 }
 
 module.exports = async config => {
   return Database(config.rethink).then(async libs => {
     libs.bybit = ByBit(config.bybit)
-    libs.trader = Trader(config.trader)
-    main(libs) // start subroutine
+    libs.traders = await main(config, libs) // start subroutine
     return Actions(libs)
   })
 }
