@@ -2,10 +2,10 @@
 # yarn lockfile v1
 
 
-actions-http@^1.0.0:
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/actions-http/-/actions-http-1.0.0.tgz#19a4f640e792dc49fbfaa8af8508bdeb3ec3b5af"
-  integrity sha512-QNLkXO4sRNQRZkbJap4qGaEpLkKmEx1L8GwQrwbfEIQYG9DCqrnGFJvkYxQgzRzH4dpcf50rRQR4n58cZ9Cavg==
+actions-http@^1.0.9:
+  version "1.0.9"
+  resolved "https://registry.yarnpkg.com/actions-http/-/actions-http-1.0.9.tgz#8df31108b9e06f4b60a7eaf79f1dd52d9986e60f"
+  integrity sha512-09wpbvPSABBMsXknlkVdyBnTAerVK50SwFZC5Rqecl/D+ir0NRtn3sncDgSyr1QG+oRcjy+cCK1kWNgdv1JEqQ==
   dependencies:
     uWebSockets.js uNetworking/uWebSockets.js#v15.4.0
 
@@ -455,7 +455,7 @@ through@~2.3.4, through@~2.3.8:
   resolved "https://registry.yarnpkg.com/through/-/through-2.3.8.tgz#0dd4c9ffaabc357960b1b724115d7e0e86a2e1f5"
   integrity sha1-DdTJ/6q8NXlgsbckEV1+Doai4fU=
 
-uWebSockets.js@uNetworking/uWebSockets.js#v15.4.0:
+"uWebSockets.js@github:uNetworking/uWebSockets.js#v15.4.0", uWebSockets.js@uNetworking/uWebSockets.js#v15.4.0:
   version "15.4.0"
   resolved "https://codeload.github.com/uNetworking/uWebSockets.js/tar.gz/23b29ec03b057ee079de99460c212b2620cfe8fe"
 
