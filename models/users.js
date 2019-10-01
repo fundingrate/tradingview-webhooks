@@ -24,7 +24,7 @@ module.exports = async con => {
       assert(username, 'username required')
       username = username.toLowerCase()
       const u = await table.hasBy('username', username)
-      assert(u, 'User already exists with that username')
+      assert(!u, 'User already exists with that username')
       return table.upsert({
         username,
         id: uuid(),

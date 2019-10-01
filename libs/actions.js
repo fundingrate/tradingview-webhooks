@@ -19,23 +19,18 @@ module.exports = ({ events, trades, bybit, stats, trader, users, tokens }) => {
     async generateToken() {
       return tokens.generate('tradebot', 'user')
     },
-    // async generateEventToken({token}) {
-    //   assert(token, 'token required')
-    //   const userToken = await tokens.get(token)
-    //   const eventToken = tokens.generate('tradebot', 'event')
-    //   return tokens.validate(eventToken, userToken.userid)
-    // },
     async registerUsername({ username }) {
       const user = await users.create(username)
       let token = await tokens.generate('tradebot', 'user')
       token = await tokens.validate(token.id, user.id)
       return { user, token }
     },
-    async consumeEvent({ token }) {
+    async consumeEvent({ token, ...params }) {
       assert(token, 'token required')
 
-      const { valid, userid } = await tokens.get(token)
+      const { valid, userid, type } = await tokens.get(token)
       assert(valid, 'Your token has expired or is invalid.')
+      // assert(type === 'user', 'Your token has expired or is invalid.')
 
       const ticker = await bybit.getTicker()
 
