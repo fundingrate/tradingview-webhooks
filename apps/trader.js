@@ -33,8 +33,9 @@ async function main(config, { bybit, stats, trades, events, tickers }) {
   }
   
   function parseEvent(r) {
-    console.log(r.id)
+    console.log(r.id, r.ticker.last_price)
     let trader = null
+    let price = r.ticker.last_price
 
     if(!has(r.userid)) {
       trader = Trader(config.trader, r.userid)
@@ -42,7 +43,6 @@ async function main(config, { bybit, stats, trades, events, tickers }) {
     } else {
       trader = get(r.userid)
     }
-    let price = r.ticker.last_price
 
     function handlePreviousPosition(price) {
       const trade = trader.last()
