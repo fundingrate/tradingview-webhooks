@@ -20,6 +20,14 @@ module.exports = async con => {
       const query = table.table().orderBy({ index: 'created' })
       return table.streamify(query)
     },
+    listSorted() {
+      const q = table
+        .table()
+        .orderBy({ index: table.r.desc('created') })
+        .limit(100)
+        .coerceTo('array')
+      return table.run(q)
+    },
     async create(username) {
       assert(username, 'username required')
       username = username.toLowerCase()

@@ -18,5 +18,22 @@ module.exports = async con => {
       const query = table.table().orderBy({index: 'created'})
       return table.streamify(query)
     },
+    listSorted() {
+      const q = table
+        .table()
+        .orderBy({ index: table.r.desc('created') })
+        .limit(100)
+        .coerceTo('array')
+      return table.run(q)
+    },
+    listUserSorted(userid) {
+      const query = table
+        .table()
+        .orderBy({ index: 'created' })
+        .filter({ userid })
+        .limit(100)
+        .coerceTo('array')
+      return table.run(query)
+    },
   }
 }

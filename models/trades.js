@@ -4,6 +4,13 @@ module.exports = async con => {
   const schema = {
     table: 'trades',
     indices: ['created', 'type', 'provider', 'userid'],
+    compound: [
+      {
+        //Compound index
+        name: 'created_userid',
+        fields: ['created', 'userid'],
+      },
+    ],
   }
 
   const table = await Table(con, schema)
@@ -18,14 +25,22 @@ module.exports = async con => {
       const query = table.table().orderBy({ index: 'created' })
       return table.streamify(query)
     },
-    listClosed() {
+    listSorted() {
       const q = table
         .table()
         .orderBy({ index: table.r.desc('created') })
-        .filter({ done: true })
         .limit(100)
         .coerceTo('array')
       return table.run(q)
+    },
+    listUserSorted(userid) {
+      const query = table
+        .table()
+        .orderBy({ index: 'created' })
+        .filter({ userid })
+        .limit(100)
+        .coerceTo('array')
+      return table.run(query)
     },
     // listTopSites() {
     //   const query = table

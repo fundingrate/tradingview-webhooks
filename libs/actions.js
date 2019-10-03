@@ -26,7 +26,7 @@ module.exports = ({ events, trades, bybit, stats, traders, users, tokens }) => {
       return { user, token }
     },
     async listUsers() {
-      return users.list()
+      return users.listSorted()
     },
     async listTraders() {
       return traders.keys()
@@ -51,13 +51,13 @@ module.exports = ({ events, trades, bybit, stats, traders, users, tokens }) => {
       assert(token, 'token required')
       const { valid, userid, type } = await tokens.get(token)
       assert(valid, 'token is no longer valid')
-      return trades.getBy('userid', userid)
+      return trades.listUserSorted(userid)
     },
     async listMyEvents({ token }) {
       assert(token, 'token required')
       const { valid, userid, type } = await tokens.get(token)
       assert(valid, 'token is no longer valid')
-      return events.getBy('userid', userid)
+      return events.listUserSorted(userid)
     },
     async getMyStats({ token }) {
       assert(token, 'token required')
@@ -69,7 +69,7 @@ module.exports = ({ events, trades, bybit, stats, traders, users, tokens }) => {
     },
     async listMyTokens({ token }) {
       const { userid } = await tokens.get(token)
-      return tokens.getBy('userid', userid)
-    }
+      return tokens.listUserSorted(userid)
+    },
   }
 }
