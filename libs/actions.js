@@ -53,6 +53,12 @@ module.exports = ({ events, trades, bybit, stats, traders, users, tokens }) => {
       assert(valid, 'token is no longer valid')
       return trades.getBy('userid', userid)
     },
+    async listMyEvents({ token }) {
+      assert(token, 'token required')
+      const { valid, userid, type } = await tokens.get(token)
+      assert(valid, 'token is no longer valid')
+      return events.getBy('userid', userid)
+    },
     async getMyStats({ token }) {
       assert(token, 'token required')
       const { valid, userid, type } = await tokens.get(token)
