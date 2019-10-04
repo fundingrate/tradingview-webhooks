@@ -136,6 +136,6 @@ module.exports = ({
       return subscriptions.update(subscriptionid, {
         userid: user.id,
       })
-    }
+    },
   }
 }

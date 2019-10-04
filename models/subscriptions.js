@@ -61,6 +61,7 @@ module.exports = async con => {
         providerid,
         userid,
         // expires: 7 * ONE_DAY_MS,
+        expires: null,
         created: Date.now(),
         updated: null,
       })
