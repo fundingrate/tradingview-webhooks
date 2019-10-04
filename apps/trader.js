@@ -11,9 +11,8 @@ const highland = require('highland')
 const assert = require('assert')
 
 async function main(config, { bybit, stats, trades, events, tickers }) {
-
   const traders = {}
-  
+
   function set(id, trader) {
     assert(id, 'id required')
     assert(trader, 'trader required')
@@ -31,18 +30,24 @@ async function main(config, { bybit, stats, trades, events, tickers }) {
     assert(id, 'id required')
     return traders[id] ? true : false
   }
-  
+
+  function getOrCreateTrader(config, id) {
+    let trader = null
+
+    if (!has(id)) {
+      trader = Trader(config, id)
+      set(id, trader)
+    } else {
+      trader = get(id)
+    }
+
+    return trader
+  }
+
   function parseEvent(r) {
     console.log(r.id, r.ticker.last_price)
-    let trader = null
     let price = r.ticker.last_price
-
-    if(!has(r.userid)) {
-      trader = Trader(config.trader, r.userid)
-      set(r.userid, trader)
-    } else {
-      trader = get(r.userid)
-    }
+    const trader = getOrCreateTrader(config.trader, r.userid)
 
     function handlePreviousPosition(price) {
       const trade = trader.last()
@@ -51,7 +56,7 @@ async function main(config, { bybit, stats, trades, events, tickers }) {
         close = trader.close(trade.id, price, trade.qty)
       }
       return { ...trade, ...close }
-    }  
+    }
 
     // close the previous position.
     const close = handlePreviousPosition(r.ticker.last_price)
@@ -59,7 +64,9 @@ async function main(config, { bybit, stats, trades, events, tickers }) {
 
     // NOTE: r.provider needs to be handled later.
     // A dashboard should be developed to manage these interactions.
-    //TODO: just filter the stream of events...
+    // maybe create editor to allow this code to be dynamically ran in sanboxed threads?
+    // serverless?
+
     switch (r.type) {
       case 'LONG': {
         const long = trader.openLong(r.id, price)
@@ -89,51 +96,29 @@ async function main(config, { bybit, stats, trades, events, tickers }) {
 
   //process the stream of trades
   highland(_events)
-    .filter(r => r.timeframe === '5m')
-    .filter(r => r.provider === 'Market Liberator A')
     .map(parseEvent)
-    .map(trades.upsert)
-    .map(highland)
+    // .map(trades.upsert)
+    // .map(highland)
     .errors(console.error)
     .resume()
 
   //process the realtime trades
   highland(_eventsLive)
     .map(r => r.new_val)
-    .filter(r => r.timeframe === '5m')
-    .filter(r => r.provider === 'Market Liberator A')
+    // .filter(r => r.timeframe === '5m')
+    // .filter(r => r.provider === 'Market Liberator A')
     .map(parseEvent)
-    .map(trades.upsert)
-    .map(highland)
+    // .map(trades.upsert)
+    // .map(highland)
     .errors(console.error)
     .resume()
 
-  // processors
-
   // utils.loop(() => {
   //   const row = trader.getStats()
   //   stats.upsert({
   //     ...row,
   //     created: Date.now(),
-  //     type: 'daily',
-  //   })
-  // }, utils.ONE_DAY_MS)
-
-  // utils.loop(() => {
-  //   const row = trader.getStats()
-  //   stats.upsert({
-  //     ...row,
-  //     created: Date.now(),
-  //     type: 'hourly',
-  //   })
-  // }, utils.ONE_HOUR_MS)
-
-  // utils.loop(() => {
-  //   const row = trader.getStats()
-  //   stats.upsert({
-  //     ...row,
-  //     created: Date.now(),
-  //     type: 'hourly',
+  //     type: '5m',
   //   })
   // }, 5 * utils.ONE_MINUTE_MS)
 
@@ -142,7 +127,18 @@ async function main(config, { bybit, stats, trades, events, tickers }) {
     set,
     get,
     list: () => Object.values(traders),
-    keys: () => Object.keys(traders)
+    keys: () => Object.keys(traders),
+    async processFilter(filter) {
+      assert(typeof filter === 'function', 'requires filter function')
+      const _events = await events.streamSorted()
+
+      return highland(_events)
+        .filter(filter)
+        .map(parseEvent)
+        .map(trades.upsert)
+        .map(highland)
+        .toPromise(Promise)
+    },
   }
 }
 

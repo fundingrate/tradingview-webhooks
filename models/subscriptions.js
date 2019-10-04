@@ -6,7 +6,13 @@ const { ONE_DAY_MS } = require('../libs/utils')
 module.exports = async con => {
   const schema = {
     table: 'subscriptions',
-    indices: ['created', 'type', 'userid'],
+    indices: ['created', 'type', 'userid', 'providerid'],
+    compound: [
+      {
+        name: 'providerid_userid',
+        fields: ['providerid', 'userid'],
+      },
+    ],
   }
 
   const table = await Table(con, schema)
@@ -50,6 +56,7 @@ module.exports = async con => {
       assert(userid, 'userid required')
       
       return table.upsert({
+        done: false,
         id: uuid(),
         providerid,
         userid,
@@ -58,6 +65,10 @@ module.exports = async con => {
         updated: null,
       })
     },
+    async isSubscribed(providerid, userid) {
+      const [sub] = await table.getBy('providerid_userid', [providerid, userid])
+      return Boolean(sub)
+    }
     // listTopSites() {
     //   const query = table
     //     .table()

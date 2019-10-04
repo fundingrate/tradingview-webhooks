@@ -2,15 +2,15 @@ const highland = require('highland')
 const lodash = require('lodash')
 const assert = require('assert')
 
-module.exports = ({ 
-  events, 
-  trades, 
-  bybit, 
-  stats, 
-  subscriptions, 
-  traders, 
-  users, 
-  tokens 
+module.exports = ({
+  events,
+  trades,
+  bybit,
+  stats,
+  subscriptions,
+  traders,
+  users,
+  tokens,
 }) => {
   return {
     async echo(payload) {
@@ -90,12 +90,52 @@ module.exports = ({
       assert(providerid, 'providerid required')
       assert(token, 'token required')
       const { userid } = await tokens.get(token)
+
+      const subbed = await subscriptions.isSubscribed(providerid, userid)
+      assert(!subbed, 'You have already subscribed to this provider.')
+
       return subscriptions.create(providerid, userid)
     },
-    async listMySubscriptions({token}){
+    async listMySubscriptions({ token }) {
       assert(token, 'token required')
       const { userid } = await tokens.get(token)
       return subscriptions.getBy('userid', userid)
+    },
+    async isSubscribed({ providerid, token }) {
+      assert(token, 'token required')
+      const { userid } = await tokens.get(token)
+      return subscriptions.isSubscribed(providerid, userid)
+    },
+    async cancelSubscription({ subscriptionid, token }) {
+      assert(subscriptionid, 'subscriptionid required')
+      assert(token, 'token required')
+
+      // get the subscription to ensure ownership.
+      const { userid } = await tokens.get(token)
+      const sub = await subscriptions.get(userid)
+      assert(sub.userid === userid, 'You do not own this subscription.')
+
+      return subscriptions.update(subscriptionid, {
+        done: true,
+      })
+    },
+    async transferSubscription({ subscriptionid, token, recipientid }) {
+      assert(subscriptionid, 'subscriptionid required')
+      assert(token, 'token required')
+      assert(recipientid, 'recipientid required')
+
+      // ensure the recipient exists.
+      const user = await users.get(recipientid)
+      console.log('sending subscription', subscriptionid, 'to', user.id)
+
+      // get the subscription to ensure ownership.
+      const { userid } = await tokens.get(token)
+      const sub = await subscriptions.get(userid)
+      assert(sub.userid === userid, 'You do not own this subscription.')
+
+      return subscriptions.update(subscriptionid, {
+        userid: user.id,
+      })
     }
   }
 }
