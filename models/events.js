@@ -4,6 +4,13 @@ module.exports = async con => {
   const schema = {
     table: 'events',
     indices: ['created', 'type', 'provider', 'userid'],
+    compound: [
+      {
+        //Compound index
+        name: 'provider_userid',
+        fields: ['provider', 'userid'],
+      },
+    ],
   }
 
   const table = await Table(con, schema)

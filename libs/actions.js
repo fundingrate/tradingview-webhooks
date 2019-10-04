@@ -74,5 +74,8 @@ module.exports = ({ events, trades, bybit, stats, traders, users, tokens }) => {
     async listEventProviders({ token }) {
       return events.listGroups('provider')
     },
+    async listUserEventProviders({ token }) {
+      return events.listGroups('provider_userid')
+    },
   }
 }
