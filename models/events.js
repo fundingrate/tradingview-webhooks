@@ -15,7 +15,7 @@ module.exports = async con => {
       return table.streamify(query)
     },
     streamSorted() {
-      const query = table.table().orderBy({index: 'created'})
+      const query = table.table().orderBy({ index: 'created' })
       return table.streamify(query)
     },
     listSorted() {
@@ -34,6 +34,14 @@ module.exports = async con => {
         .limit(100)
         .coerceTo('array')
       return table.run(query)
+    },
+    listGroups(index) {
+      const q = table
+        .table()
+        .group({ index })
+        .count()
+        .coerceTo('array')
+      return table.run(q)
     },
     // listTopSites() {
     //   const query = table

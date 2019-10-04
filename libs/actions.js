@@ -71,5 +71,8 @@ module.exports = ({ events, trades, bybit, stats, traders, users, tokens }) => {
       const { userid } = await tokens.get(token)
       return tokens.listUserSorted(userid)
     },
+    async listEventProviders({ token }) {
+      return events.listGroups('provider')
+    },
   }
 }
