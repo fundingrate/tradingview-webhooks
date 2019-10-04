@@ -7,6 +7,7 @@ module.exports = config => {
     require('./trades'),
     require('./stats'),
     require('./tokens'),
-    require('./users')
+    require('./users'),
+    require('./subscriptions')
   ])
 }

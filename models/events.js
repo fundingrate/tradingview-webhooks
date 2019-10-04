@@ -47,7 +47,6 @@ module.exports = async con => {
         .table()
         .group({ index })
         .count()
-        .coerceTo('array')
       return table.run(q)
     },
     // listTopSites() {

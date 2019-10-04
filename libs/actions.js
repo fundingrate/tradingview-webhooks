@@ -2,7 +2,16 @@ const highland = require('highland')
 const lodash = require('lodash')
 const assert = require('assert')
 
-module.exports = ({ events, trades, bybit, stats, traders, users, tokens }) => {
+module.exports = ({ 
+  events, 
+  trades, 
+  bybit, 
+  stats, 
+  subscriptions, 
+  traders, 
+  users, 
+  tokens 
+}) => {
   return {
     async echo(payload) {
       return payload
@@ -71,11 +80,22 @@ module.exports = ({ events, trades, bybit, stats, traders, users, tokens }) => {
       const { userid } = await tokens.get(token)
       return tokens.listUserSorted(userid)
     },
-    async listEventProviders({ token }) {
+    async listEventProviders() {
       return events.listGroups('provider')
     },
-    async listUserEventProviders({ token }) {
+    async listUserEventProviders() {
       return events.listGroups('provider_userid')
     },
+    async createSubscription({ providerid, token }) {
+      assert(providerid, 'providerid required')
+      assert(token, 'token required')
+      const { userid } = await tokens.get(token)
+      return subscriptions.create(providerid, userid)
+    },
+    async listMySubscriptions({token}){
+      assert(token, 'token required')
+      const { userid } = await tokens.get(token)
+      return subscriptions.getBy('userid', userid)
+    }
   }
 }

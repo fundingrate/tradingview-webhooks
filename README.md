@@ -118,6 +118,7 @@ export default async baseURL => {
 ```
 
 ### Actions
+
 > Below is a list of the available api endpoints.
 
 #### echo(params)
@@ -176,5 +177,26 @@ export default async baseURL => {
 #### listMyTokens({token})
 
 > list all my created tokens.
+
+- `token` - a user token.
+
+#### listEventProviders({token})
+
+> list all event providers and count of events.
+
+#### listUserEventProviders({token})
+
+> list all event providers and count of events from each userid.
+
+#### createSubscription({providerid, token})
+
+> Subscribe to a provider
+
+- `token` - a user token.
+- `providerid` - provider name (indicator name)
+
+#### listMySubscriptions({token})
+
+> list all your subscriptions.
 
 - `token` - a user token.
