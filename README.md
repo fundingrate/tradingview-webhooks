@@ -200,3 +200,9 @@ export default async baseURL => {
 > list all your subscriptions.
 
 - `token` - a user token.
+
+# license
+
+[license zero parity](https://licensezero.com/licenses/parity)
+and [apache 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
+(contributions)
