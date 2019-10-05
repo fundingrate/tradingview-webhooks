@@ -28,16 +28,18 @@ module.exports = async con => {
         .coerceTo('array')
       return table.run(q)
     },
-    async create(username) {
+    async create(username, type, meta = {}) {
       assert(username, 'username required')
       username = username.toLowerCase()
       const u = await table.hasBy('username', username)
       assert(!u, 'User already exists with that username')
       return table.upsert({
         username,
+        type,
         id: uuid(),
         created: Date.now(),
-        updated: Date.now()
+        updated: Date.now(),
+        ...meta
       })
     }
     // listTopSites() {

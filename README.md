@@ -188,12 +188,12 @@ export default async baseURL => {
 
 > list all event providers and count of events from each userid.
 
-#### createSubscription({providerid, token})
+#### createSubscription({userid, token})
 
 > Subscribe to a provider
 
 - `token` - a user token.
-- `providerid` - provider name (indicator name)
+- `userid` - provider name (indicator name)
 
 #### listMySubscriptions({token})
 

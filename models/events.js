@@ -3,12 +3,19 @@ const { Table } = require('rethink-table')
 module.exports = async con => {
   const schema = {
     table: 'events',
-    indices: ['created', 'type', 'provider', 'userid'],
+    indices: ['created', 'type', 'provider', 'userid', 'timeframe'],
     compound: [
       {
         //Compound index
         name: 'provider_userid',
         fields: ['provider', 'userid'],
+      },
+    ],
+    compound: [
+      {
+        //Compound index
+        name: 'provider_timeframe_userid',
+        fields: ['provider', 'timeframe', 'userid'],
       },
     ],
   }

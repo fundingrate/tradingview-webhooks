@@ -45,12 +45,10 @@ async function main(config, { bybit, stats, trades, events, tickers }) {
   }
 
   function parseEvent(r) {
-    console.log(r.id, r.ticker.last_price)
+    console.log(r.id, r.provider, r.ticker.last_price)
     let price = r.ticker.last_price
 
-    // const trader = getOrCreateTrader(config.trader, r.uderid)
-    // const trader = getOrCreateTrader(config.trader, r.providerid)
-    const trader = getOrCreateTrader(config.trader, r.provider)
+    const trader = getOrCreateTrader(config.trader, r.userid)
 
     function handlePreviousPosition(price) {
       const trade = trader.last()
@@ -88,7 +86,7 @@ async function main(config, { bybit, stats, trades, events, tickers }) {
       //   // return { ...r, ...trend }
       // }
       default: {
-        console.log('Invalid type:', r.type, r.id)
+        // console.log('Invalid type:', r.type, r.id)
         return r
       }
     }
@@ -96,6 +94,7 @@ async function main(config, { bybit, stats, trades, events, tickers }) {
 
   const _events = await events.streamSorted()
   const _eventsLive = await events.changes()
+  const _tradesLive = await trades.changes()
 
   //process the stream of trades
   highland(_events)
@@ -114,14 +113,15 @@ async function main(config, { bybit, stats, trades, events, tickers }) {
     .errors(console.error)
     .resume()
 
-  // utils.loop(() => {
-  //   const row = trader.getStats()
-  //   stats.upsert({
-  //     ...row,
-  //     created: Date.now(),
-  //     type: '5m',
-  //   })
-  // }, 5 * utils.ONE_MINUTE_MS)
+  highland(_tradesLive)
+    .map(r => r.new_val)
+    .map(row => {
+      return get(row.userid).getStats()
+    })
+    .map(stats.upsert)
+    .map(highland)
+    .errors(console.error)
+    .resume()
 
   return {
     has,

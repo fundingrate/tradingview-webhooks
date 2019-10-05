@@ -5,6 +5,7 @@ const { Position, Stats } = require('./defaults')
 
 module.exports = (config, userid) => {
   const stats = Stats({
+    id: userid,
     userid
   })
 

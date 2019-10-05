@@ -8,7 +8,6 @@ module.exports = config => {
     require('./stats'),
     require('./tokens'),
     require('./users'),
-    require('./subscriptions'),
-    require('./providers')
+    require('./subscriptions')
   ])
 }

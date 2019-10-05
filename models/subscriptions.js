@@ -9,8 +9,8 @@ module.exports = async con => {
     indices: ['created', 'type', 'userid', 'providerid'],
     compound: [
       {
-        name: 'providerid_userid',
-        fields: ['providerid', 'userid'],
+        name: 'userid_providerid',
+        fields: ['userid', 'providerid'],
       },
     ],
   }
@@ -51,23 +51,23 @@ module.exports = async con => {
         .count()
       return table.run(q)
     },
-    create(providerid, userid) {
-      assert(providerid, 'providerid required')
+    create(userid, providerid) {
       assert(userid, 'userid required')
+      assert(providerid, 'providerid required')
       
       return table.upsert({
         done: false,
         id: uuid(),
-        providerid,
         userid,
+        providerid,
         // expires: 7 * ONE_DAY_MS,
         expires: null,
         created: Date.now(),
         updated: null,
       })
     },
-    async isSubscribed(providerid, userid) {
-      const [sub] = await table.getBy('providerid_userid', [providerid, userid])
+    async isSubscribed(userid, providerid) {
+      const [sub] = await table.getBy('userid_providerid', [userid, providerid])
       return Boolean(sub)
     }
     // listTopSites() {

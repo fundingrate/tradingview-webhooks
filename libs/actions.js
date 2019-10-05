@@ -11,7 +11,6 @@ module.exports = ({
   traders,
   users,
   tokens,
-  providers,
 }) => {
   return {
     async echo(payload) {
@@ -69,20 +68,29 @@ module.exports = ({
       assert(valid, 'token is no longer valid')
       return events.listUserSorted(userid)
     },
-    async getMyStats({ token }) {
+    async listMyStats({ token }) {
       assert(token, 'token required')
       const { valid, userid, type } = await tokens.get(token)
       assert(valid, 'token is no longer valid')
-      const trader = traders.get(userid)
-      assert(trader, 'trader not found, you have no events recorded.')
-      return trader.getStats()
+      const list = await users.getBy('userid', userid)
+      return list.map(r => {
+        return traders.get(r.id).getStats()
+      })
     },
+    // async getMyStats({ token }) {
+    //   assert(token, 'token required')
+    //   const { valid, userid, type } = await tokens.get(token)
+    //   assert(valid, 'token is no longer valid')
+    //   const trader = traders.get(userid)
+    //   assert(trader, 'trader not found, you have no events recorded.')
+    //   return trader.getStats()
+    // },
     async listMyTokens({ token }) {
       const { userid } = await tokens.get(token)
       return tokens.listUserSorted(userid)
     },
     async listProviders() {
-      return providers.listDone()
+      return users.getBy('type', 'provider')
     },
     async createProvider({
       name,
@@ -93,22 +101,23 @@ module.exports = ({
       assert(token, 'token required')
       const { userid } = await tokens.get(token)
 
-      const provider = await providers.create(name, userid, {
+      const provider = await users.create(name, 'provider', {
         description,
+        userid,
       })
 
       // create an api token for the provider.
-      let token = await tokens.generate('user', 'provider')
-      token = await tokens.validate(token.id, provider.id)
+      let providerToken = await tokens.generate('user', 'provider')
+      providerToken = await tokens.validate(providerToken.id, provider.id)
 
-      return { provider, token }
+      return { provider, token: providerToken }
     },
-    // async disableProvider({ providerid, token }) {
-    //   assert(providerid, 'providerid required')
+    // async disableProvider({ userid, token }) {
+    //   assert(userid, 'userid required')
     //   assert(token, 'token required')
     //   const { userid } = await tokens.get(token)
 
-    //   return providers.update(providerid, {
+    //   return providers.update(userid, {
     //     done: true,
     //   })
     // },
@@ -117,13 +126,13 @@ module.exports = ({
       assert(token, 'token required')
       const { userid } = await tokens.get(token)
 
-      const exists = await providers.has(providerid)
-      assert(exists, 'Provider does not exist!')
+      const { type } = await users.get(providerid)
+      assert(type === 'provider', 'Provider does not exist!')
 
-      const subbed = await subscriptions.isSubscribed(providerid, userid)
+      const subbed = await subscriptions.isSubscribed(userid, providerid)
       assert(!subbed, 'You have already subscribed to this provider.')
 
-      return subscriptions.create(providerid, userid)
+      return subscriptions.create(userid, providerid)
     },
     async listMySubscriptions({ token }) {
       assert(token, 'token required')
@@ -133,7 +142,7 @@ module.exports = ({
     async isSubscribed({ providerid, token }) {
       assert(token, 'token required')
       const { userid } = await tokens.get(token)
-      return subscriptions.isSubscribed(providerid, userid)
+      return subscriptions.isSubscribed(userid, providerid)
     },
     async cancelSubscription({ subscriptionid, token }) {
       assert(subscriptionid, 'subscriptionid required')
