@@ -33,9 +33,9 @@ module.exports = ({
       username = username.toLowerCase()
       const has = await users.getBy('username', username)
       assert(!has, 'Another user already claimed this username.')
-      
+
       return users.update(userid, {
-        username
+        username,
       })
     },
     async getTicker() {
@@ -81,23 +81,29 @@ module.exports = ({
       assert(valid, 'token is no longer valid')
       return events.listUserSorted(userid)
     },
-    async listMyStats({ token }) {
+    async listMyProviderStats({ token }) {
       assert(token, 'token required')
       const { valid, userid, type } = await tokens.get(token)
       assert(valid, 'token is no longer valid')
       const list = await users.getBy('userid', userid)
-      return list.map(r => {
-        return traders.get(r.id).getStats()
-      })
+      return list.reduce((memo, r) => {
+        try {
+          const stats = traders.get(r.id).getStats()
+          memo.push(stats)
+          return memo
+        } catch(e) {
+          return memo
+        }
+      }, [])
     },
-    // async getMyStats({ token }) {
-    //   assert(token, 'token required')
-    //   const { valid, userid, type } = await tokens.get(token)
-    //   assert(valid, 'token is no longer valid')
-    //   const trader = traders.get(userid)
-    //   assert(trader, 'trader not found, you have no events recorded.')
-    //   return trader.getStats()
-    // },
+    async getMyStats({ token }) {
+      assert(token, 'token required')
+      const { valid, userid, type } = await tokens.get(token)
+      assert(valid, 'token is no longer valid')
+      const trader = traders.get(userid)
+      assert(trader, 'trader not found, you have no events recorded.')
+      return trader.getStats()
+    },
     async listMyTokens({ token }) {
       assert(token, 'token required')
       const { userid } = await tokens.get(token)
@@ -106,11 +112,11 @@ module.exports = ({
     async listProviders() {
       return users.getBy('type', 'provider')
     },
-    async listMyProviders({token}) {
+    async listMyProviders({ token }) {
       assert(token, 'token required')
       const { userid } = await tokens.get(token)
 
-      return users.getBy('type_userid', ['provider', userid])
+      return users.getBy('userid_type', [userid, 'provider'])
     },
     async createProvider({
       username,
@@ -124,6 +130,7 @@ module.exports = ({
       const provider = await users.create(username, 'provider', {
         description,
         userid,
+        // eventProps
       })
 
       // create an api token for the provider.

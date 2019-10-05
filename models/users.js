@@ -9,8 +9,8 @@ module.exports = async con => {
     compound: [
       {
         //Compound index
-        name: 'type_userid',
-        fields: ['type', 'userid'],
+        name: 'userid_type',
+        fields: ['userid', 'type'],
       },
     ],
   }
