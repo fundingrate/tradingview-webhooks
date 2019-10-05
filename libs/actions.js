@@ -25,6 +25,19 @@ module.exports = ({
       const user = await users.get(token.userid)
       return user
     },
+    async changeMyUsername({ username, token }) {
+      assert(token, 'token required')
+      const { valid, userid, type } = await tokens.get(token)
+
+      assert(username, 'username required')
+      username = username.toLowerCase()
+      const has = await users.getBy('username', username)
+      assert(!has, 'Another user already claimed this username.')
+      
+      return users.update(userid, {
+        username
+      })
+    },
     async getTicker() {
       return bybit.getTicker()
     },
@@ -86,22 +99,29 @@ module.exports = ({
     //   return trader.getStats()
     // },
     async listMyTokens({ token }) {
+      assert(token, 'token required')
       const { userid } = await tokens.get(token)
       return tokens.listUserSorted(userid)
     },
     async listProviders() {
       return users.getBy('type', 'provider')
     },
-    async createProvider({
-      name,
-      token,
-      description = 'User Generated Provider Key.',
-    }) {
-      assert(name, 'name required')
+    async listMyProviders({token}) {
       assert(token, 'token required')
       const { userid } = await tokens.get(token)
 
-      const provider = await users.create(name, 'provider', {
+      return users.getBy('type_userid', ['provider', userid])
+    },
+    async createProvider({
+      username,
+      token,
+      description = 'User Generated Provider Key.',
+    }) {
+      assert(username, 'username required')
+      assert(token, 'token required')
+      const { userid } = await tokens.get(token)
+
+      const provider = await users.create(username, 'provider', {
         description,
         userid,
       })

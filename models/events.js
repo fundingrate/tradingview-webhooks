@@ -10,8 +10,6 @@ module.exports = async con => {
         name: 'provider_userid',
         fields: ['provider', 'userid'],
       },
-    ],
-    compound: [
       {
         //Compound index
         name: 'provider_timeframe_userid',

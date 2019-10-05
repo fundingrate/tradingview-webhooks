@@ -5,7 +5,14 @@ const assert = require('assert')
 module.exports = async con => {
   const schema = {
     table: 'users',
-    indices: ['created', 'type', 'username'],
+    indices: ['created', 'type', 'username', 'userid'],
+    compound: [
+      {
+        //Compound index
+        name: 'type_userid',
+        fields: ['type', 'userid'],
+      },
+    ],
   }
 
   const table = await Table(con, schema)
@@ -34,12 +41,12 @@ module.exports = async con => {
       const u = await table.hasBy('username', username)
       assert(!u, 'User already exists with that username')
       return table.upsert({
+        ...meta,
         username,
         type,
         id: uuid(),
         created: Date.now(),
         updated: Date.now(),
-        ...meta
       })
     }
     // listTopSites() {
