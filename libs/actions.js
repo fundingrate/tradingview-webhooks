@@ -17,7 +17,7 @@ module.exports = ({
     return list.reduce((memo, r) => {
       console.log('mergeTraderStats', r)
       try {
-        r.stats = traders.get(r.userid).getStats()
+        r.stats = traders.get(r.id).getStats()
         memo.push(r)
         return memo
       } catch (e) {
