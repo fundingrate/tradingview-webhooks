@@ -42,6 +42,7 @@ module.exports = async con => {
       assert(!u, 'User already exists with that username')
       return table.upsert({
         ...meta,
+        verfied: false,
         username,
         type,
         id: uuid(),
