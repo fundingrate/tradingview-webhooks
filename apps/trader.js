@@ -47,7 +47,10 @@ async function main(config, { bybit, stats, trades, events, tickers }) {
   function parseEvent(r) {
     console.log(r.id, r.ticker.last_price)
     let price = r.ticker.last_price
-    const trader = getOrCreateTrader(config.trader, r.userid)
+
+    // const trader = getOrCreateTrader(config.trader, r.uderid)
+    // const trader = getOrCreateTrader(config.trader, r.providerid)
+    const trader = getOrCreateTrader(config.trader, r.provider)
 
     function handlePreviousPosition(price) {
       const trade = trader.last()
@@ -97,19 +100,17 @@ async function main(config, { bybit, stats, trades, events, tickers }) {
   //process the stream of trades
   highland(_events)
     .map(parseEvent)
-    // .map(trades.upsert)
-    // .map(highland)
+    .map(trades.upsert)
+    .map(highland)
     .errors(console.error)
     .resume()
 
   //process the realtime trades
   highland(_eventsLive)
     .map(r => r.new_val)
-    // .filter(r => r.timeframe === '5m')
-    // .filter(r => r.provider === 'Market Liberator A')
     .map(parseEvent)
-    // .map(trades.upsert)
-    // .map(highland)
+    .map(trades.upsert)
+    .map(highland)
     .errors(console.error)
     .resume()
 

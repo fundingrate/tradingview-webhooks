@@ -38,6 +38,11 @@ module.exports = async con => {
     create(name, userid, meta ={}) {
       assert(name, 'name required')
       assert(userid, 'userid required')
+
+      name = name.toLowerCase()
+
+      const has = await table.hasBy('name', name)
+      assert(!has, 'Provider with this name already exists.')
       
       return table.upsert({
         done: false,
