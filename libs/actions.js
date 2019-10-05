@@ -11,6 +11,7 @@ module.exports = ({
   traders,
   users,
   tokens,
+  providers,
 }) => {
   return {
     async echo(payload) {
@@ -80,16 +81,44 @@ module.exports = ({
       const { userid } = await tokens.get(token)
       return tokens.listUserSorted(userid)
     },
-    async listEventProviders() {
-      return events.listGroups('provider')
+    async listProviders() {
+      return providers.listDone()
     },
-    async listUserEventProviders() {
-      return events.listGroups('provider_userid')
+    async createProvider({
+      name,
+      token,
+      description = 'User Generated Provider Key.',
+    }) {
+      assert(name, 'name required')
+      assert(token, 'token required')
+      const { userid } = await tokens.get(token)
+
+      const provider = await providers.create(name, userid, {
+        description,
+      })
+
+      // create an api token for the provider.
+      let token = await tokens.generate('user', 'provider')
+      token = await tokens.validate(token.id, provider.id)
+
+      return { provider, token }
     },
+    // async disableProvider({ providerid, token }) {
+    //   assert(providerid, 'providerid required')
+    //   assert(token, 'token required')
+    //   const { userid } = await tokens.get(token)
+
+    //   return providers.update(providerid, {
+    //     done: true,
+    //   })
+    // },
     async createSubscription({ providerid, token }) {
       assert(providerid, 'providerid required')
       assert(token, 'token required')
       const { userid } = await tokens.get(token)
+
+      const exists = await providers.has(providerid)
+      assert(exists, 'Provider does not exist!')
 
       const subbed = await subscriptions.isSubscribed(providerid, userid)
       assert(!subbed, 'You have already subscribed to this provider.')

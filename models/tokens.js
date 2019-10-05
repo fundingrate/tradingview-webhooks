@@ -21,7 +21,7 @@ module.exports = async con => {
       const query = table.table().orderBy({ index: 'created' })
       return table.streamify(query)
     },
-    generate(provider, type) {
+    generate(provider, type, meta = {}) {
       return table.upsert({
         provider,
         type,
@@ -30,6 +30,7 @@ module.exports = async con => {
         expires: ONE_DAY_MS,
         created: Date.now(),
         updated: null,
+        ...meta,
       })
     },
     validate(id, userid) {
