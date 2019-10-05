@@ -154,7 +154,7 @@ module.exports = ({
       const { userid } = await tokens.get(token)
 
       const { type } = await users.get(providerid)
-      assert(type === 'provider', 'Provider does not exist!')
+      assert(type === 'provider', 'You may only subscribe to provider accounts.')
 
       const subbed = await subscriptions.isSubscribed(userid, providerid)
       assert(!subbed, 'You have already subscribed to this provider.')
