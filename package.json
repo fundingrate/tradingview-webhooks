@@ -6,6 +6,7 @@
   "dependencies": {
     "actions-http": "^2.0.13",
     "bitmex-realtime-api": "^0.4.0",
+    "bluebird": "^3.7.0",
     "bybit": "^1.0.5",
     "dotenv": "^8.1.0",
     "lodash": "^4.17.15",

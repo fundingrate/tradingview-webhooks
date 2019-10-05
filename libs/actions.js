@@ -1,6 +1,7 @@
 const highland = require('highland')
 const lodash = require('lodash')
 const assert = require('assert')
+const Promise = require('bluebird')
 
 module.exports = ({
   events,
@@ -12,6 +13,19 @@ module.exports = ({
   users,
   tokens,
 }) => {
+  const mergeTraderStats = list => {
+    return list.reduce((memo, r) => {
+      console.log('mergeTraderStats', r)
+      try {
+        r.stats = traders.get(r.userid).getStats()
+        memo.push(r)
+        return memo
+      } catch (e) {
+        return memo
+      }
+    }, [])
+  }
+
   return {
     async echo(payload) {
       return payload
@@ -86,15 +100,7 @@ module.exports = ({
       const { valid, userid, type } = await tokens.get(token)
       assert(valid, 'token is no longer valid')
       const list = await users.getBy('userid', userid)
-      return list.reduce((memo, r) => {
-        try {
-          const stats = traders.get(r.id).getStats()
-          memo.push(stats)
-          return memo
-        } catch(e) {
-          return memo
-        }
-      }, [])
+      return mergeTraderStats(list)
     },
     async getMyStats({ token }) {
       assert(token, 'token required')
@@ -110,13 +116,15 @@ module.exports = ({
       return tokens.listUserSorted(userid)
     },
     async listProviders() {
-      return users.getBy('type', 'provider')
+      const list = await users.getBy('type', 'provider')
+      return mergeTraderStats(list)
     },
     async listMyProviders({ token }) {
       assert(token, 'token required')
       const { userid } = await tokens.get(token)
 
-      return users.getBy('userid_type', [userid, 'provider'])
+      const list = await users.getBy('userid_type', [userid, 'provider'])
+      return mergeTraderStats(list)
     },
     async createProvider({
       username,
@@ -154,7 +162,10 @@ module.exports = ({
       const { userid } = await tokens.get(token)
 
       const { type } = await users.get(providerid)
-      assert(type === 'provider', 'You may only subscribe to provider accounts.')
+      assert(
+        type === 'provider',
+        'You may only subscribe to provider accounts.'
+      )
 
       const subbed = await subscriptions.isSubscribed(userid, providerid)
       assert(!subbed, 'You have already subscribed to this provider.')
@@ -164,7 +175,8 @@ module.exports = ({
     async listMySubscriptions({ token }) {
       assert(token, 'token required')
       const { userid } = await tokens.get(token)
-      return subscriptions.getBy('userid', userid)
+      const list = await subscriptions.getBy('userid', userid)
+      return mergeTraderStats(list)
     },
     async isSubscribed({ providerid, token }) {
       assert(token, 'token required')
