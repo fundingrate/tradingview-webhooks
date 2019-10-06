@@ -35,7 +35,7 @@ module.exports = async con => {
         .coerceTo('array')
       return table.run(q)
     },
-    async create(username, type, meta = {}) {
+    async create(username, type = 'user', meta = {}) {
       assert(username, 'username required')
       username = username.toLowerCase()
       const u = await table.hasBy('username', username)

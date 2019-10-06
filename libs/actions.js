@@ -161,9 +161,10 @@ module.exports = ({
       assert(token, 'token required')
       const { userid } = await tokens.get(token)
 
-      const { type } = await users.get(providerid)
+      const provider = await users.get(providerid)
+      assert(provider.userid !== userid, 'You cannot subscribe to this provider.')
       assert(
-        type === 'provider',
+        provider.type === 'provider',
         'You may only subscribe to provider accounts.'
       )
 
