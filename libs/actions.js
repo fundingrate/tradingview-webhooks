@@ -17,10 +17,11 @@ module.exports = ({
     return list.reduce((memo, r) => {
       console.log('mergeTraderStats', r)
       try {
-        r.stats = traders.get(r.id).getStats()
+        r.stats = traders.getOrCreate(r.id).getStats()
         memo.push(r)
         return memo
       } catch (e) {
+        console.error('Failed to mergeTraderStats:', r.id, e.message)
         return memo
       }
     }, [])

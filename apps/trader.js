@@ -127,6 +127,9 @@ async function main(config, { bybit, stats, trades, events, tickers }) {
     has,
     set,
     get,
+    getOrCreate(userid) {
+      return getOrCreateTrader(config.trader, userid)
+    },
     list: () => Object.values(traders),
     keys: () => Object.keys(traders),
     async processFilter(filter) {
