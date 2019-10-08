@@ -56,6 +56,8 @@ module.exports = (config, userid) => {
       stats.totalTrades += 1
       stats.price = price
 
+      console.log(trade.id, 'LONG Opened!', trade)
+
       return pos
     },
     openShort(id, price, qty = getAllowance()) {
@@ -74,6 +76,8 @@ module.exports = (config, userid) => {
       stats.shorts += 1
       stats.totalTrades += 1
       stats.price = price
+
+      console.log(trade.id, 'SHORT Opened!', trade)
 
       return pos
     },

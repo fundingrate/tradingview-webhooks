@@ -78,10 +78,10 @@ module.exports = ({
       const ticker = await bybit.getTicker()
 
       return events.upsert({
+        ...params,
         userid,
         ticker,
         created: Date.now(),
-        ...params,
       })
     },
     async listMyTrades({ token }) {
