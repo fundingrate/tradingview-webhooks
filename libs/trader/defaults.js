@@ -30,6 +30,7 @@ exports.Stats = p => {
     gained: 0,
     shortProfit: 0,
     longProfit: 0,
+    profit: 0,
     ...p,
   }
 }

@@ -14,7 +14,7 @@ module.exports = ({
   tokens,
 }) => {
   const mergeTraderStats = list => {
-    return list.reduce((memo, r) => {
+    list = list.reduce((memo, r) => {
       console.log('mergeTraderStats', r)
       try {
         r.stats = traders.getOrCreate(r.id).getStats()
@@ -25,6 +25,8 @@ module.exports = ({
         return memo
       }
     }, [])
+
+    return lodash.orderBy(list, 'stats.profit').reverse()
   }
 
   return {

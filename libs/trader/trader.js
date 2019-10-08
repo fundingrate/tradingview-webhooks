@@ -56,7 +56,7 @@ module.exports = (config, userid) => {
       stats.totalTrades += 1
       stats.price = price
 
-      console.log(trade.id, 'LONG Opened!', trade)
+      console.log(pos.id, 'LONG Opened!', pos)
 
       return pos
     },
@@ -77,7 +77,7 @@ module.exports = (config, userid) => {
       stats.totalTrades += 1
       stats.price = price
 
-      console.log(trade.id, 'SHORT Opened!', trade)
+      console.log(pos.id, 'SHORT Opened!', pos)
 
       return pos
     },
