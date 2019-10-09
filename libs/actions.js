@@ -26,7 +26,9 @@ module.exports = ({
       }
     }, [])
 
-    return lodash.orderBy(list, 'stats.profit').reverse()
+    return lodash.orderBy(list, r => {
+      return r.stats.profit || 0
+    }).reverse()
   }
 
   return {
