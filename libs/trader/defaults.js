@@ -1,4 +1,4 @@
-exports.Position = p => {
+exports.Position = (p={}) => {
   return {
     // id: uuid(),
     done: false,
@@ -6,14 +6,16 @@ exports.Position = p => {
     updated: null,
     ...p,
     // type: 'SHORT',
-    // qty,
+    // qty: 0
     // price,
   }
 }
 
-exports.Stats = p => {
+exports.Stats = (p={}) => {
   const startingBalance = 10000
   return {
+    created: Date.now(),
+    updated: null,
     longs: 0, // count of longs
     shorts: 0, // count of shorts
     totalTrades: 0,

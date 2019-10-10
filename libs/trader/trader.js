@@ -1,16 +1,19 @@
 //NOTE: temp.
 const assert = require('assert')
 const lodash = require('lodash')
-const { Position, Stats } = require('./defaults')
+const { Position } = require('./defaults')
+const Stats = require('./stats')
 
 module.exports = (config, userid) => {
+
   const stats = Stats({
     id: userid,
-    userid
+    userid,
   })
+  
 
   const getAllowance = () => {
-    return stats.balance * 0.1
+    return stats.get('balance') * 0.1
   }
 
   // NOTE: assuption has been made that this was a queue... will have to be changed.
@@ -21,6 +24,7 @@ module.exports = (config, userid) => {
   }
 
   return {
+    stats,
     get: id => positions.get(id),
     last: () => {
       return [...positions].pop()
@@ -28,16 +32,8 @@ module.exports = (config, userid) => {
     list: () => {
       return [...positions]
     },
-    setStat(k, v) {
-      stats[k] = v
-      return stats
-    },
-    getStat(k) {
-      assert(stats[k], 'stat does not exist.')
-      return stats[k]
-    },
     getStats() {
-      return { ...stats, openPositions: positions.length }
+      return { ...stats.get(), openPositions: positions.length }
     },
     openLong(id, price, qty = getAllowance()) {
       price = parseFloat(price)
@@ -51,12 +47,13 @@ module.exports = (config, userid) => {
       })
 
       positions.push(pos)
-      stats.position = pos
-      stats.longs += 1
-      stats.totalTrades += 1
-      stats.price = price
 
-      console.log(pos.id, 'LONG Opened!', pos)
+      stats.set('position', pos)
+      stats.set('price', price)
+      stats.increment('longs')
+      stats.increment('totalTrades')
+
+      console.log(pos.id, 'LONG Opened!', stats.get())
 
       return pos
     },
@@ -72,20 +69,19 @@ module.exports = (config, userid) => {
       })
 
       positions.push(pos)
-      stats.position = pos
-      stats.shorts += 1
-      stats.totalTrades += 1
-      stats.price = price
 
-      console.log(pos.id, 'SHORT Opened!', pos)
+      stats.set('position', pos)
+      stats.set('price', price)
+      stats.increment('shorts')
+      stats.increment('totalTrades')
+
+      console.log(pos.id, 'SHORT Opened!', stats.get())
 
       return pos
     },
     close(id, price) {
       // merge trades and update closing values
-
       price = parseFloat(price)
-
       const pos = positions.pop()
 
       // closed trade, do not add to active positions array.
@@ -103,26 +99,25 @@ module.exports = (config, userid) => {
           : trade.closingPrice - trade.price
 
       // update balance to reflect profit/loss
-      stats.balance += trade.profit
+      stats.increment('balance', trade.profit)
 
       if (trade.profit > 0) {
-        stats.profitableTrades += 1
-        stats.gained += trade.profit
+        stats.increment('profitableTrades')
+        stats.increment('gained', trade.profit)
       } else {
-        stats.losingTrades += 1
-        stats.lost += trade.profit
+        stats.increment('losingTrades')
+        stats.increment('lost', trade.profit)
       }
 
-      stats.profit = stats.gained + stats.lost
+      stats.set('profit', stats.get('gained') + stats.get('lost'))
       trade.change = change(trade.price, trade.closingPrice)
 
-      if (trade.type === 'SHORT') {
-        stats.shortProfit += trade.profit
-      } else {
-        stats.longProfit += trade.profit
-      }
+      if (trade.type === 'SHORT') 
+        stats.increment('shortProfit', trade.profit) 
+      else 
+        stats.increment('longProfit', trade.profit)
 
-      console.log(trade.id, 'Trade Closed.', trade)
+      console.log(trade.id, 'Trade Closed.', trade, stats.get())
 
       return trade
     },
