@@ -38,8 +38,8 @@ module.exports = ({
     },
     async me({ token }) {
       assert(token, 'token required')
-      token = await tokens.get(token)
-      const user = await users.get(token.userid)
+      const { userid } = await tokens.get(token)
+      const user = await users.get(userid)
       return user
     },
     async changeMyUsername({ username, token }) {
