@@ -1,8 +1,8 @@
-FROM node as build
+FROM node:10 as build
 WORKDIR /app
 COPY . .
-RUN yarn install
+RUN yarn install --production=true
 
-FROM node:latest
+FROM node:10
 COPY --from=build /app /
-CMD ["node", "index.js"]
+CMD ["yarn", "trader"]

@@ -22,6 +22,7 @@ module.exports = ({
         return memo
       } catch (e) {
         console.error('Failed to mergeTraderStats:', r.id, e.message)
+        memo.push(r)
         return memo
       }
     }, [])
@@ -107,6 +108,16 @@ module.exports = ({
       assert(provider.userid === userid, 'provider does not belong to you.')
 
       return events.listUserSorted(provider.id)
+    },
+    async listMyProviderTrades({ token, providerid }) {
+      assert(token, 'token required')
+      const { valid, userid, type } = await tokens.get(token)
+      assert(valid, 'token is no longer valid')
+
+      const provider = await users.get(providerid)
+      assert(provider.userid === userid, 'provider does not belong to you.')
+
+      return trades.listUserSorted(provider.id)
     },
     async listMyProviderStats({ token }) {
       assert(token, 'token required')
