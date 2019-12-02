@@ -98,6 +98,16 @@ module.exports = ({
       assert(valid, 'token is no longer valid')
       return events.listUserSorted(userid)
     },
+    async listMyProviderEvents({ token, providerid }) {
+      assert(token, 'token required')
+      const { valid, userid, type } = await tokens.get(token)
+      assert(valid, 'token is no longer valid')
+
+      const provider = await users.get(providerid)
+      assert(provider.userid === userid, 'provider does not belong to you.')
+
+      return events.listUserSorted(provider.id)
+    },
     async listMyProviderStats({ token }) {
       assert(token, 'token required')
       const { valid, userid, type } = await tokens.get(token)
