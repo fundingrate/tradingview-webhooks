@@ -5,6 +5,8 @@ const { parseEnv } = require('./libs/utils')
 const config = parseEnv(process.env)
 assert(config.name, 'app requires a name')
 
+console.log('ENV', config)
+
 const App = require(`./apps/${config.name}`)
 assert(App, 'app not found')
 

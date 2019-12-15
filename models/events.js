@@ -47,6 +47,15 @@ module.exports = async con => {
         .coerceTo('array')
       return table.run(query)
     },
+    listIndexSorted(index, value) {
+      const query = table
+        .table()
+        .orderBy({ index: 'created' })
+        .filter({ [index]: value })
+        .limit(100)
+        .coerceTo('array')
+      return table.run(query)
+    },
     listGroups(index) {
       const q = table
         .table()

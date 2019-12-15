@@ -16,9 +16,10 @@ exports.isEnvArray = (value = '') => {
   return value.toString().includes(',')
 }
 
-const isLower = new RegExp('^[a-z0-9]')
-exports.isEnvParsable = key => {
-  return isLower.test(key)
+const isLower = '^[a-z0-9]'
+
+exports.IsEnvParsable = regex => key => {
+  return regex.test(key)
 }
 
 exports.parseEnvArray = value => {
@@ -26,6 +27,10 @@ exports.parseEnvArray = value => {
     .map(x => x.trim())
     .compact()
     .value()
+}
+
+exports.MapKey = regex => key => {
+  return key.replace(regex,'')
 }
 
 exports.mapValues = (kv, valueFn) => {
@@ -39,11 +44,13 @@ exports.mapValues = (kv, valueFn) => {
   )
 }
 
-exports.parseEnv = env => {
+exports.parseEnv = (env,regex=isLower) => {
+  regex = new RegExp(regex)
+  const isEnvParsable = exports.IsEnvParsable(regex)
   return lodash.reduce(
     env,
     (result, value, key) => {
-      if (!exports.isEnvParsable(key)) return result
+      if (!isEnvParsable(key)) return result
       const path = key.split('.')
       let val = value
       if (exports.isEnvArray(value)) {
@@ -55,6 +62,18 @@ exports.parseEnv = env => {
     {}
   )
 }
+
+exports.mapValues = (kv, valueFn) => {
+  return lodash.reduce(
+    kv,
+    (result, value, key) => {
+      result[key] = valueFn(value)
+      return result
+    },
+    {}
+  )
+}
+
 
 // TIME SHIT FOR STATS
 
