@@ -27,6 +27,11 @@ function parseEvent(event, libs) {
       const short = libs.trader.openShort(event.id, price)
       return { ...event, ...short }
     }
+    // case 'CLOSE': {
+    //   const close = libs.trader.closeLastPosition(event.ticker.last_price)
+    //   trades.update(close.id, close)
+    //   return event
+    // }
     // case 'MARKET_TREND': {
     //   // const stats = trader.updateMarketCondition(r.marketCondition)
     //   // return { ...r, ...trend }
