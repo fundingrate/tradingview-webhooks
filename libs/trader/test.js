@@ -2,7 +2,7 @@ require('dotenv').config()
 const test = require('tape')
 const { parseEnv } = require('../utils')
 const config = parseEnv(process.env)
-const API = require('./index')
+const API = require('./index').trader
 
 const position = {
   id: null,
@@ -17,20 +17,13 @@ test('init class', t => {
     t.ok(api)
     t.end()
   })
-  t.test('Open Long', async t => {
-    let long = api.openLong('long', 10000)
-    long = api.get('long')
-    t.ok(long)
+  t.test('Open Short', async t => {
+    let short = api.openShort('s', 10100)
+    t.ok(short)
     t.end()
   })
-  t.test('Get Stats', async t => {
-    const stats = api.getStats()
-    console.log(stats)
-    t.ok(stats)
-    t.end()
-  })
-  t.test('Close Long', async t => {
-    const close = api.close('long', 10040)
+  t.test('Close Last Position', async t => {
+    const close = api.closeLastPosition(10000)
     console.log(close)
     t.ok(close)
     t.end()
@@ -39,6 +32,24 @@ test('init class', t => {
     const stats = api.getStats()
     console.log(stats)
     t.ok(stats)
+    t.end()
+  })
+  t.test('Open Long', async t => {
+    let long = api.openLong('l', 10000)
+    t.ok(long)
+    t.end()
+  })
+  t.test('Close Long', async t => {
+    const close = api.close('l', 10040)
+    console.log(close)
+    t.ok(close)
+    t.end()
+  })
+  t.test('Get Stats', async t => {
+    const stats = api.getStats()
+    console.log(stats)
+    t.ok(stats)
+    t.equals(stats.profit, 140, 'profit totaled correctly.')
     t.end()
   })
 })

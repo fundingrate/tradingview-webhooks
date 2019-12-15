@@ -1,103 +1,61 @@
 require('dotenv').config()
 const Database = require('../models')
 const Actions = require('../libs/actions')
-const Web = require('actions-http')
 
 const ByBit = require('bybit')
-const utils = require('../libs/utils')
-const Trader = require('../libs/trader/trader')
 const highland = require('highland')
+const Traders = require('../libs/trader').manager
 
-const assert = require('assert')
+function parseEvent(event, libs) {
+  let price = event.ticker.last_price
 
-async function main(config, { bybit, stats, trades, events, tickers }) {
-  const traders = {}
-
-  function set(id, trader) {
-    assert(id, 'id required')
-    assert(trader, 'trader required')
-    traders[id] = trader
-    return traders[id]
-  }
-
-  function get(id) {
-    assert(id, 'id required')
-    assert(traders[id], 'trader does not exist')
-    return traders[id]
-  }
-
-  function has(id) {
-    assert(id, 'id required')
-    return traders[id] ? true : false
-  }
-
-  function getOrCreateTrader(config, id) {
-    let trader = null
-
-    if (!has(id)) {
-      trader = Trader(config, id)
-      set(id, trader)
-    } else {
-      trader = get(id)
-    }
-
-    return trader
-  }
-
-  function parseEvent(r) {
-    let price = r.ticker.last_price
-    const trader = getOrCreateTrader(config.trader, r.userid)
-
-    function handlePreviousPosition(price) {
-      const trade = trader.last()
-      let close = null
-      if (trade) {
-        close = trader.close(trade.id, price, trade.qty)
-      }
-      return { ...trade, ...close }
-    }
-
+  try {
     // close the previous position.
-    const close = handlePreviousPosition(r.ticker.last_price)
-    if (close.id) trades.update(close.id, close)
-
-    // NOTE: r.provider needs to be handled later.
-    // A dashboard should be developed to manage these interactions.
-    // maybe create editor to allow this code to be dynamically ran in sanboxed threads?
-    // serverless?
-
-    switch (r.type) {
-      case 'LONG': {
-        const long = trader.openLong(r.id, price)
-        return { ...r, ...long }
-      }
-      case 'SHORT': {
-        const short = trader.openShort(r.id, price)
-        return { ...r, ...short }
-      }
-      // case 'MARKET_TREND': {
-      //   // const stats = trader.updateMarketCondition(r.marketCondition)
-      //   // return { ...r, ...trend }
-      // }
-      // case 'MOMENTUM_WAVE': {
-      //   // const stats = trader.updateMarketMomentum(r.momentum)
-      //   // return { ...r, ...trend }
-      // }
-      default: {
-        // console.log('Invalid type:', r.type, r.id)
-        return r
-      }
-    }
+    const close = libs.trader.closeLastPosition(event.ticker.last_price)
+    trades.update(close.id, close)
+  } catch (e) {
+    // this is ok, we simply had no trade to close.
   }
 
-  const _events = await events.streamSorted()
-  const _eventsLive = await events.changes()
-  const _tradesLive = await trades.changes()
+  switch (event.type) {
+    case 'LONG': {
+      const long = libs.trader.openLong(event.id, price)
+      return { ...event, ...long }
+    }
+    case 'SHORT': {
+      const short = libs.trader.openShort(event.id, price)
+      return { ...event, ...short }
+    }
+    // case 'MARKET_TREND': {
+    //   // const stats = trader.updateMarketCondition(r.marketCondition)
+    //   // return { ...r, ...trend }
+    // }
+    // case 'MOMENTUM_WAVE': {
+    //   // const stats = trader.updateMarketMomentum(r.momentum)
+    //   // return { ...r, ...trend }
+    // }
+    default: {
+      // console.log('Invalid type:', r.type, r.id)
+      return event
+    }
+  }
+}
 
-  //process the stream of trades
+async function main(config, libs) {
+  const traders = Traders(config.trader, libs.trades)
+
+  const _events = await libs.events.streamSorted()
+  const _eventsLive = await libs.events.changes()
+  const _tradesLive = await tlibs.rades.changes()
+
+  // process the stream of historical trades
+  // NOTE: this should be done before we process new trades or cached.
   highland(_events)
-    .map(parseEvent)
-    .map(trades.upsert)
+    .map(e => {
+      const trader = getOrCreateTrader(config.trader, e.userid)
+      return parseEvent(e, { trader })
+    })
+    .map(libs.trades.upsert)
     .map(highland)
     .errors(console.error)
     .resume()
@@ -105,8 +63,11 @@ async function main(config, { bybit, stats, trades, events, tickers }) {
   //process the realtime trades
   highland(_eventsLive)
     .map(r => r.new_val)
-    .map(parseEvent)
-    .map(trades.upsert)
+    .map(e => {
+      const trader = getOrCreateTrader(config.trader, e.userid)
+      return parseEvent(e, { trader })
+    })
+    .map(libs.trades.upsert)
     .map(highland)
     .errors(console.error)
     .resume()
@@ -116,32 +77,12 @@ async function main(config, { bybit, stats, trades, events, tickers }) {
     .map(row => {
       return get(row.userid).getStats()
     })
-    .map(stats.upsert)
+    .map(libs.stats.upsert)
     .map(highland)
     .errors(console.error)
     .resume()
 
-  return {
-    has,
-    set,
-    get,
-    getOrCreate(userid) {
-      return getOrCreateTrader(config.trader, userid)
-    },
-    list: () => Object.values(traders),
-    keys: () => Object.keys(traders),
-    async processFilter(filter) {
-      assert(typeof filter === 'function', 'requires filter function')
-      const _events = await events.streamSorted()
-
-      return highland(_events)
-        .filter(filter)
-        .map(parseEvent)
-        .map(trades.upsert)
-        .map(highland)
-        .toPromise(Promise)
-    },
-  }
+  return traders
 }
 
 module.exports = async config => {

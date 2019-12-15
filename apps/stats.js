@@ -9,8 +9,6 @@ const Trader = require('../libs/trader/trader')
 const highland = require('highland')
 
 async function main({ bybit, tickers }) {
-  
-
   // save the price every 5 minutes
   utils.loop(async () => {
     const ticker = await bybit.getTicker()
