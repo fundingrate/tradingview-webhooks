@@ -1,1 +1,4 @@
-module.exports = require('./trader')
+module.exports = {
+  trader: require('./trader'),
+  manager: require('./manager')
+}
