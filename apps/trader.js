@@ -6,6 +6,7 @@ const ByBit = require('bybit')
 const highland = require('highland')
 const Traders = require('../libs/trader').manager
 
+// handle any event type in here.
 function parseEvent(event, libs) {
   let price = event.ticker.last_price
 
@@ -41,6 +42,7 @@ function parseEvent(event, libs) {
   }
 }
 
+// inisialize the app and handle any new events.
 async function main(config, libs) {
   const traders = Traders(config.trader, libs.trades)
 
@@ -85,6 +87,7 @@ async function main(config, libs) {
   return traders
 }
 
+// expose the application interface.
 module.exports = async config => {
   return Database(config.rethink).then(async libs => {
     libs.bybit = ByBit(config.bybit)
