@@ -117,7 +117,7 @@ module.exports = ({
       const provider = await users.get(providerid)
       assert(provider.userid === userid, 'provider does not belong to you.')
 
-      return trades.listUserSorted(provider.id)
+      return trades.listUserSorted(provider.id, 'desc')
     },
     async listMyProviderStats({ token }) {
       assert(token, 'token required')

@@ -29,16 +29,16 @@ module.exports = async con => {
       const q = table
         .table()
         .orderBy({ index: table.r.desc('created') })
-        .limit(100)
+        .limit(1000)
         .coerceTo('array')
       return table.run(q)
     },
-    listUserSorted(userid) {
+    listUserSorted(userid, sort ='desc') {
       const query = table
         .table()
-        .orderBy({ index: 'created' })
+        .orderBy({ index: table.r[sort]('created') })
         .filter({ userid })
-        .limit(100)
+        .limit(1000)
         .coerceTo('array')
       return table.run(query)
     },

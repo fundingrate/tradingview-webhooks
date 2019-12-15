@@ -34,7 +34,7 @@ module.exports = async con => {
       const q = table
         .table()
         .orderBy({ index: table.r.desc('created') })
-        .limit(100)
+        .limit(1000)
         .coerceTo('array')
       return table.run(q)
     },
@@ -43,7 +43,7 @@ module.exports = async con => {
         .table()
         .orderBy({ index: 'created' })
         .filter({ userid })
-        .limit(100)
+        .limit(1000)
         .coerceTo('array')
       return table.run(query)
     },
@@ -52,7 +52,7 @@ module.exports = async con => {
         .table()
         .orderBy({ index: 'created' })
         .filter({ [index]: value })
-        .limit(100)
+        .limit(1000)
         .coerceTo('array')
       return table.run(query)
     },

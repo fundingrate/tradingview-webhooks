@@ -54,7 +54,7 @@ async function main(config, { bybit, stats, trades, events, tickers }) {
       if (trade) {
         close = trader.close(trade.id, price, trade.qty)
       }
-      return { ...trade, ...close }
+      return { ...trade, ...close, updated: r.created }
     }
 
     // close the previous position.
@@ -69,11 +69,11 @@ async function main(config, { bybit, stats, trades, events, tickers }) {
     switch (r.type) {
       case 'LONG': {
         const long = trader.openLong(r.id, price)
-        return { ...r, ...long }
+        return { ...r, ...long, created: r.created }
       }
       case 'SHORT': {
         const short = trader.openShort(r.id, price)
-        return { ...r, ...short }
+        return { ...r, ...short, created: r.created }
       }
       // case 'MARKET_TREND': {
       //   // const stats = trader.updateMarketCondition(r.marketCondition)
