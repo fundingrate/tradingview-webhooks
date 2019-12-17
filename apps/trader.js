@@ -53,7 +53,7 @@ async function main(config, libs) {
 
   const _events = await libs.events.streamSorted()
   const _eventsLive = await libs.events.changes()
-  const _tradesLive = await tlibs.rades.changes()
+  const _tradesLive = await libs.trades.changes()
 
   // process the stream of historical trades
   // NOTE: this should be done before we process new trades or cached.
