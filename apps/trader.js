@@ -59,7 +59,7 @@ async function main(config, libs) {
   // NOTE: this should be done before we process new trades or cached.
   highland(_events)
     .map(e => {
-      const trader = traders.getOrCreateTrader(config.trader, e.userid)
+      const trader = traders.getOrCreate(e.userid)
       return parseEvent(e, { trader })
     })
     .map(libs.trades.upsert)
@@ -71,7 +71,7 @@ async function main(config, libs) {
   highland(_eventsLive)
     .map(r => r.new_val)
     .map(e => {
-      const trader = traders.getOrCreateTrader(config.trader, e.userid)
+      const trader = traders.getOrCreate(e.userid)
       return parseEvent(e, { trader })
     })
     .map(libs.trades.upsert)
