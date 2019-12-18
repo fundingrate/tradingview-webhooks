@@ -13,9 +13,10 @@ function parseEvent(event, libs) {
   try {
     // close the previous position.
     const close = libs.trader.closeLastPosition(event.ticker.last_price)
-    trades.update(close.id, close)
+    libs.trades.update(close.id, close)
   } catch (e) {
     // this is ok, we simply had no trade to close.
+    console.log('TRADE CLOSE ERROR:', e)
   }
 
   switch (event.type) {
@@ -60,7 +61,7 @@ async function main(config, libs) {
   highland(_events)
     .map(e => {
       const trader = traders.getOrCreate(e.userid)
-      return parseEvent(e, { trader })
+      return parseEvent(e, { trader, trades: libs.trades })
     })
     .map(libs.trades.upsert)
     .map(highland)
@@ -72,7 +73,7 @@ async function main(config, libs) {
     .map(r => r.new_val)
     .map(e => {
       const trader = traders.getOrCreate(e.userid)
-      return parseEvent(e, { trader })
+      return parseEvent(e, { trader, trades: libs.trades })
     })
     .map(libs.trades.upsert)
     .map(highland)
