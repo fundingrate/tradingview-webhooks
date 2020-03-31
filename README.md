@@ -1,6 +1,6 @@
-# Tradingview-listener
+# Tradingview-Webhooks
 
-A simple service converting tradingview webhooks into exchange orders. Once started, the end user is able to submit commands via http.
+A simple service converting tradingview webhooks into exchange orders. Once running, the end user is able to submit commands via http. This tool was made so I could concurrently test multiple alert/signal stratagies using live market data. We now offer a hosted version at [Fundingrate.io](https://fundingrate.io).
 
 ## Software Dependancies
 
